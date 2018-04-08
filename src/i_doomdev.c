@@ -173,6 +173,7 @@ void I_DoomDevAllocScreens(void)
 void I_DoomDevFreeScreens(void)
 {
   int i;
+  I_DoomDevFlushBatch();
   R_FlushHardPatches();
   for (i = 0; i < numlumps; i++)
     if (lumpinfo[i].flat_fd != -1) {
