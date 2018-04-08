@@ -167,6 +167,7 @@ void I_DoomDevAllocScreens(void)
   translations_fd = ioctl(doom_fd, DOOMDEV_IOCTL_CREATE_COLORMAPS, &xlat_param);
   if (translations_fd < 0)
     I_Error("doomdev create_colormap translation fail");
+  free(trans);
 }
 
 void I_DoomDevFreeScreens(void)
