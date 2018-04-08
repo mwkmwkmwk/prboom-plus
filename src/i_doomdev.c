@@ -241,6 +241,8 @@ void I_DoomDevDrawBackground(const char *flatname, int n)
 
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
 {
+  if (dcvars->yl > dcvars->yh)
+    return;
   if (batch_mode != BATCH_COLUMNS || batch_size >= MAX_BATCH_SIZE ||
 	  batch_scrn_dst != 0 || batch_texture != dcvars->texture_base)
     I_DoomDevFlushBatch();
