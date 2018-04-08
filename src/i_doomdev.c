@@ -199,3 +199,13 @@ void I_DoomDevDrawBackground(const char *flatname, int n)
 {
   // XXX
 }
+
+void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
+{
+  // XXX
+}
+
+void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
+{
+  // XXX
+}

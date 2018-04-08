@@ -34,6 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include "doomstat.h"
+#include "i_doomdev.h"
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_draw.h"
@@ -664,6 +665,53 @@ static R_DrawColumn_f drawcolumnfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRA
        R_DrawFuzzColumn32_RoundedUV_LinearZ,},
     },
   },
+  {
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,
+       I_DoomDevDrawColumn,},
+    },
+  },
 };
 
 R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
@@ -964,6 +1012,32 @@ static R_DrawSpan_f drawspanfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRAW_FI
       R_DrawSpan32_PointUV_LinearZ,
       R_DrawSpan32_LinearUV_LinearZ,
       R_DrawSpan32_RoundedUV_LinearZ,
+    },
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+  },
+  {
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+    {
+      NULL,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+    },
+    {
+      NULL,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
     },
     {
       NULL,
