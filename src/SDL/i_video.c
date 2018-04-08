@@ -68,6 +68,7 @@
 #include "d_main.h"
 #include "d_event.h"
 #include "d_deh.h"
+#include "i_doomdev.h"
 #include "i_joy.h"
 #include "i_video.h"
 #include "i_capture.h"

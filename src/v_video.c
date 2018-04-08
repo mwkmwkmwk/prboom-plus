@@ -1114,7 +1114,7 @@ void V_InitMode(video_mode_t mode) {
       V_PlotPixelWu = I_DoomDevPlotPixelWu;
       V_DrawLine = I_DoomDevDrawLine;
       V_DrawLineWu = I_DoomDevDrawLine;
-      current_videomode = VID_MODE32;
+      current_videomode = VID_MODEHARD;
       break;
 #ifdef GL_DOOM
     case VID_MODEGL:
@@ -1149,6 +1149,7 @@ video_mode_t V_GetMode(void) {
 //
 int V_GetModePixelDepth(video_mode_t mode) {
   switch (mode) {
+    case VID_MODEHARD: return 1;
     case VID_MODE8: return 1;
     case VID_MODE15: return 2;
     case VID_MODE16: return 2;
@@ -1162,6 +1163,7 @@ int V_GetModePixelDepth(video_mode_t mode) {
 //
 int V_GetNumPixelBits(void) {
   switch (current_videomode) {
+    case VID_MODEHARD: return 8;
     case VID_MODE8: return 8;
     case VID_MODE15: return 15;
     case VID_MODE16: return 16;
