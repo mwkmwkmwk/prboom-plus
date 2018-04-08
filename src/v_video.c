@@ -669,6 +669,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
 
+        dcvars.texture_fd = patch->doomdev_fd;
         dcvars.texture_base = column->pixels;
         dcvars.source = column->pixels + post->topdelta + yoffset;
         dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset: dcvars.source;
