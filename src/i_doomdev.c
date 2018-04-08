@@ -169,7 +169,7 @@ void I_DoomDevClosePatch(rpatch_t *patch)
 void I_DoomDevFreeScreens(void)
 {
   int i;
-  R_FlushAllPatches();
+  R_FlushHardPatches();
   for (i = 0; i < NUM_SCREENS; i++) {
     if (screens[i].doomdev_fd != -1)
       close(screens[i].doomdev_fd);
