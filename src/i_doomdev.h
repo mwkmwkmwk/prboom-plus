@@ -3,11 +3,14 @@
 
 #include "doomtype.h"
 #include "r_draw.h"
+#include "r_patch.h"
 #include "v_video.h"
 
 void I_DoomDevRead(int idx);
 void I_DoomDevAllocScreens(void);
 void I_DoomDevFreeScreens(void);
+void I_DoomDevUploadPatch(rpatch_t *patch);
+void I_DoomDevClosePatch(rpatch_t *patch);
 
 void I_DoomDevPlotPixel(int scrn, int x, int y, byte color);
 void I_DoomDevPlotPixelWu(int scrn, int x, int y, byte color, int weight);

@@ -469,6 +469,8 @@ static void R_DoDrawPlane(visplane_t *pl)
       // disable sky texture scaling if status bar is used
       // old code: dcvars.iscale = FRACUNIT*200/viewheight;
       dcvars.iscale = skyiscale;
+      dcvars.texture_base = tex_patch->pixels;
+      dcvars.texture_fd = tex_patch->doomdev_fd;
 
       tex_patch = R_CacheTextureCompositePatchNum(texture);
 

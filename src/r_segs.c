@@ -509,6 +509,8 @@ static void R_RenderSegLoop (void)
           dcvars.yh = yh;
           dcvars.texturemid = rw_midtexturemid;
           tex_patch = R_CacheTextureCompositePatchNum(midtexture);
+          dcvars.texture_base = tex_patch->pixels;
+          dcvars.texture_fd = tex_patch->doomdev_fd;
           dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
           dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
@@ -538,6 +540,8 @@ static void R_RenderSegLoop (void)
                   dcvars.yh = mid;
                   dcvars.texturemid = rw_toptexturemid;
                   tex_patch = R_CacheTextureCompositePatchNum(toptexture);
+                  dcvars.texture_base = tex_patch->pixels;
+                  dcvars.texture_fd = tex_patch->doomdev_fd;
                   dcvars.source = R_GetTextureColumn(tex_patch,texturecolumn);
                   dcvars.prevsource = R_GetTextureColumn(tex_patch,texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch,texturecolumn+1);
@@ -572,6 +576,8 @@ static void R_RenderSegLoop (void)
                   dcvars.yh = yh;
                   dcvars.texturemid = rw_bottomtexturemid;
                   tex_patch = R_CacheTextureCompositePatchNum(bottomtexture);
+                  dcvars.texture_base = tex_patch->pixels;
+                  dcvars.texture_fd = tex_patch->doomdev_fd;
                   dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
                   dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);

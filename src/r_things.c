@@ -478,6 +478,8 @@ void R_DrawMaskedColumn(
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
       if (dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
+          dcvars->texture_fd = patch->doomdev_fd;
+          dcvars->texture_base = column->pixels;
           dcvars->source = column->pixels + post->topdelta;
           dcvars->prevsource = prevcolumn->pixels + post->topdelta;
           dcvars->nextsource = nextcolumn->pixels + post->topdelta;

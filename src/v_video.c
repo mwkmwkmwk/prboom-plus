@@ -405,6 +405,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
 
   stretch_param_t *params;
 
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevUploadPatch(patch);
+
   if (cm<CR_LIMIT)
     trans=colrngs[cm];
   else
@@ -666,6 +669,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
 
+        dcvars.texture_base = column->pixels;
         dcvars.source = column->pixels + post->topdelta + yoffset;
         dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset: dcvars.source;
         dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset: dcvars.source;
