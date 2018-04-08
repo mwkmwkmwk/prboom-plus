@@ -7,6 +7,7 @@
 #include "lprintf.h"
 #include "r_draw.h"
 #include "r_main.h"
+#include "w_wad.h"
 
 int doom_fd = -1;
 int doomdev_surf_width;
@@ -85,7 +86,13 @@ void I_DoomDevFlushBatch(void)
     }
     case BATCH_SPANS:
     {
-      // XXX
+      struct doomdev_surf_ioctl_draw_spans param = {
+        .flat_fd = batch_texture_fd,
+	// XXX translations & colormaps & draw_flags
+        .spans_ptr = (uint64_t)(batch_spans + done),
+        .spans_num = batch_size - done,
+      };
+      res = ioctl(screens[batch_scrn_dst].doomdev_fd, DOOMDEV_SURF_IOCTL_DRAW_SPANS, &param);
       break;
     }
     }
@@ -143,10 +150,29 @@ void I_DoomDevAllocScreens(void)
   }
 }
 
+void I_DoomDevFreeScreens(void)
+{
+  int i;
+  R_FlushHardPatches();
+  for (i = 0; i < numlumps; i++)
+    if (lumpinfo[i].flat_fd != -1) {
+      close(lumpinfo[i].flat_fd);
+      lumpinfo[i].flat_fd = -1;
+    }
+  for (i = 0; i < NUM_SCREENS; i++) {
+    if (screens[i].doomdev_fd != -1)
+      close(screens[i].doomdev_fd);
+    screens[i].doomdev_fd = -1;
+  }
+  if (doom_fd != -1)
+    close(doom_fd);
+  doom_fd = -1;
+}
+
 void I_DoomDevUploadPatch(rpatch_t *patch)
 {
   struct doomdev_ioctl_create_texture param = {
-    .data_ptr = (uint64_t)patch->pixels,
+    .data_ptr = (uint64_t)(uintptr_t)patch->pixels,
     .size = patch->height * patch->width,
     .height = patch->height,
   };
@@ -166,18 +192,18 @@ void I_DoomDevClosePatch(rpatch_t *patch)
   patch->doomdev_fd = -1;
 }
 
-void I_DoomDevFreeScreens(void)
+void I_DoomDevUploadFlat(int lump, const byte *data)
 {
-  int i;
-  R_FlushHardPatches();
-  for (i = 0; i < NUM_SCREENS; i++) {
-    if (screens[i].doomdev_fd != -1)
-      close(screens[i].doomdev_fd);
-    screens[i].doomdev_fd = -1;
-  }
-  if (doom_fd != -1)
-    close(doom_fd);
-  doom_fd = -1;
+  struct doomdev_ioctl_create_flat param = {
+    .data_ptr = (uint64_t)(uintptr_t)data,
+  };
+  int fd;
+  if (lumpinfo[lump].flat_fd != -1)
+    return;
+  fd = ioctl(doom_fd, DOOMDEV_IOCTL_CREATE_FLAT, &param);
+  if (fd < 0)
+    I_Error("doomdev create_flat fail");
+  lumpinfo[lump].flat_fd = fd;
 }
 
 void I_DoomDevPlotPixelWu(int scrn, int x, int y, byte color, int weight)
@@ -264,5 +290,20 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
 
 void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
 {
-  // XXX
+  if (batch_mode != BATCH_SPANS || batch_size >= MAX_BATCH_SIZE ||
+	  batch_scrn_dst != drawvars.screen || batch_texture_fd != dsvars->flat_fd)
+    I_DoomDevFlushBatch();
+  batch_mode = BATCH_SPANS;
+  batch_scrn_dst = drawvars.screen;
+  batch_texture_fd = dsvars->flat_fd;
+  batch_spans[batch_size].ustart = dsvars->xfrac & 0x3fffff;
+  batch_spans[batch_size].ustep = dsvars->xstep & 0x3fffff;
+  batch_spans[batch_size].vstart = dsvars->yfrac & 0x3fffff;
+  batch_spans[batch_size].vstep = dsvars->ystep & 0x3fffff;
+  batch_spans[batch_size].x1 = dsvars->x1 + drawvars.xoff;
+  batch_spans[batch_size].x2 = dsvars->x2 + drawvars.xoff;
+  batch_spans[batch_size].y = dsvars->y + drawvars.yoff;
+  // XXX colormaps
+  // XXX draw flags
+  batch_size++;
 }

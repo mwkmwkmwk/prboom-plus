@@ -242,6 +242,7 @@ static void W_AddFile(wadfile_info_t *wadfile)
         }
         strncpy (lump_p->name, fileinfo->name, 8);
 	lump_p->source = wadfile->src;                    // Ty 08/29/98
+	lump_p->flat_fd = -1;
       }
 
     free(fileinfo2free);      // killough

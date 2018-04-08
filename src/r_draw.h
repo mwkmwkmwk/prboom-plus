@@ -116,6 +116,7 @@ typedef struct {
   const byte          *source; // start of a 64*64 tile image
   const lighttable_t  *colormap;
   const lighttable_t  *nextcolormap;
+  int                 flat_fd;
 } draw_span_vars_t;
 
 typedef struct {

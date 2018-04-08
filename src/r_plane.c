@@ -494,6 +494,10 @@ static void R_DoDrawPlane(visplane_t *pl)
       draw_span_vars_t dsvars;
 
       dsvars.source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
+      if (V_GetMode() == VID_MODEHARD) {
+	I_DoomDevUploadFlat(firstflat + flattranslation[pl->picnum], dsvars.source);
+	dsvars.flat_fd = lumpinfo[firstflat + flattranslation[pl->picnum]].flat_fd;
+      }
 
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;
