@@ -158,7 +158,7 @@ void I_DoomDevFillRect(int scrn, int x, int y, int width, int height, byte colou
   batch_mode = BATCH_FILL;
   batch_scrn_dst = scrn;
   batch_fill[batch_size].pos_dst_x = x;
-  batch_fill[batch_size].pos_dst_x = y;
+  batch_fill[batch_size].pos_dst_y = y;
   batch_fill[batch_size].width = width;
   batch_fill[batch_size].height = height;
   batch_fill[batch_size].color = colour;
@@ -173,9 +173,9 @@ void I_DoomDevCopyRect(int srcscrn, int destscrn, int x, int y, int width, int h
   batch_scrn_dst = destscrn;
   batch_scrn_src = srcscrn;
   batch_copy[batch_size].pos_dst_x = x;
-  batch_copy[batch_size].pos_dst_x = y;
+  batch_copy[batch_size].pos_dst_y = y;
   batch_copy[batch_size].pos_src_x = x;
-  batch_copy[batch_size].pos_src_x = y;
+  batch_copy[batch_size].pos_src_y = y;
   batch_copy[batch_size].width = width;
   batch_copy[batch_size].height = height;
   batch_size++;
