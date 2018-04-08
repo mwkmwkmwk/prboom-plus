@@ -21,6 +21,8 @@ void I_DoomDevDrawBackground(const char *flatname, int n);
 void I_DoomDevCopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags);
 void I_DoomDevFillRect(int scrn, int x, int y, int width, int height, byte colour);
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars);
+void I_DoomDevDrawFuzzColumn(pdraw_column_vars_s dcvars);
+void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars);
 void I_DoomDevDrawSpan(draw_span_vars_t *dsvars);
 
 #endif
