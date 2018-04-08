@@ -143,6 +143,9 @@ draw_vars_t drawvars = {
   0, // byte_pitch
   0, // short_pitch
   0, // int_pitch
+  0, // screen
+  0, // xoff
+  0, // yoff
   RDRAW_FILTER_POINT, // filterwall
   RDRAW_FILTER_POINT, // filterfloor
   RDRAW_FILTER_POINT, // filtersprite
@@ -1103,6 +1106,9 @@ void R_InitBuffer(int width, int height)
   drawvars.byte_pitch = screens[0].byte_pitch;
   drawvars.short_pitch = screens[0].short_pitch;
   drawvars.int_pitch = screens[0].int_pitch;
+  drawvars.screen = 0;
+  drawvars.xoff = viewwindowx;
+  drawvars.yoff = viewwindowy;
 
   if (V_GetMode() == VID_MODE8) {
     for (i=0; i<FUZZTABLE; i++)

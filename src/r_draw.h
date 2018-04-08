@@ -125,6 +125,9 @@ typedef struct {
   int   byte_pitch;
   int   short_pitch;
   int   int_pitch;
+  int   screen;
+  int   xoff;
+  int   yoff;
 
   enum draw_filter_type_e filterwall;
   enum draw_filter_type_e filterfloor;

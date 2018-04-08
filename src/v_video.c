@@ -534,6 +534,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.byte_pitch = screens[scrn].byte_pitch;
     drawvars.short_pitch = screens[scrn].short_pitch;
     drawvars.int_pitch = screens[scrn].int_pitch;
+    drawvars.screen = scrn;
+    drawvars.xoff = 0;
+    drawvars.yoff = 0;
 
     if (flags & VPT_TRANS) {
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);

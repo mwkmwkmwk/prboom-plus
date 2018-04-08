@@ -244,18 +244,18 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
   if (dcvars->yl > dcvars->yh)
     return;
   if (batch_mode != BATCH_COLUMNS || batch_size >= MAX_BATCH_SIZE ||
-	  batch_scrn_dst != 0 || batch_texture != dcvars->texture_base)
+	  batch_scrn_dst != drawvars.screen || batch_texture != dcvars->texture_base)
     I_DoomDevFlushBatch();
   batch_mode = BATCH_COLUMNS;
-  batch_scrn_dst = 0;
+  batch_scrn_dst = drawvars.screen;
   batch_texture_fd = dcvars->texture_fd;
   batch_texture = dcvars->texture_base;
   batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
   batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
   batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
-  batch_columns[batch_size].y1 = dcvars->yl;
-  batch_columns[batch_size].y2 = dcvars->yh;
-  batch_columns[batch_size].x = dcvars->x;
+  batch_columns[batch_size].y1 = dcvars->yl + drawvars.yoff;
+  batch_columns[batch_size].y2 = dcvars->yh + drawvars.yoff;
+  batch_columns[batch_size].x = dcvars->x + drawvars.xoff;
   // XXX colormaps
   // XXX draw flags
   // XXX translation
