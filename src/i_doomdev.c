@@ -33,6 +33,7 @@ struct doomdev_span batch_spans[MAX_BATCH_SIZE];
 
 enum batch_mode batch_mode = BATCH_NONE;
 int batch_size = 0;
+int batch_colormap_fd;
 
 const byte *batch_texture;
 int batch_texture_fd;
@@ -88,7 +89,8 @@ void I_DoomDevFlushBatch(void)
     {
       struct doomdev_surf_ioctl_draw_spans param = {
         .flat_fd = batch_texture_fd,
-	// XXX translations & colormaps & draw_flags
+	.colormaps_fd = batch_colormap_fd,
+	.draw_flags = DOOMDEV_DRAW_FLAGS_COLORMAP,
         .spans_ptr = (uint64_t)(batch_spans + done),
         .spans_num = batch_size - done,
       };
@@ -159,6 +161,11 @@ void I_DoomDevFreeScreens(void)
       close(lumpinfo[i].flat_fd);
       lumpinfo[i].flat_fd = -1;
     }
+  for (i = 0; i < numcolormaps; i++) {
+    if (colormap_fd[i] != -1)
+      close(colormap_fd[i]);
+    colormap_fd[i] = -1;
+  }
   for (i = 0; i < NUM_SCREENS; i++) {
     if (screens[i].doomdev_fd != -1)
       close(screens[i].doomdev_fd);
@@ -204,6 +211,21 @@ void I_DoomDevUploadFlat(int lump, const byte *data)
   if (fd < 0)
     I_Error("doomdev create_flat fail");
   lumpinfo[lump].flat_fd = fd;
+}
+
+void I_DoomDevUploadColormap(int idx)
+{
+  struct doomdev_ioctl_create_colormaps param = {
+    .data_ptr = (uint64_t)(uintptr_t)colormaps[idx],
+    .num = 34,
+  };
+  int fd;
+  if (colormap_fd[idx] != -1)
+    return;
+  fd = ioctl(doom_fd, DOOMDEV_IOCTL_CREATE_COLORMAPS, &param);
+  if (fd < 0)
+    I_Error("doomdev create_colormaps fail");
+  colormap_fd[idx] = fd;
 }
 
 void I_DoomDevPlotPixelWu(int scrn, int x, int y, byte color, int weight)
@@ -296,6 +318,7 @@ void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
   batch_mode = BATCH_SPANS;
   batch_scrn_dst = drawvars.screen;
   batch_texture_fd = dsvars->flat_fd;
+  batch_colormap_fd = colormap_fd[boom_cm];
   batch_spans[batch_size].ustart = dsvars->xfrac & 0x3fffff;
   batch_spans[batch_size].ustep = dsvars->xstep & 0x3fffff;
   batch_spans[batch_size].vstart = dsvars->yfrac & 0x3fffff;
@@ -303,7 +326,6 @@ void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
   batch_spans[batch_size].x1 = dsvars->x1 + drawvars.xoff;
   batch_spans[batch_size].x2 = dsvars->x2 + drawvars.xoff;
   batch_spans[batch_size].y = dsvars->y + drawvars.yoff;
-  // XXX colormaps
-  // XXX draw flags
+  batch_spans[batch_size].colormap_idx = (dsvars->colormap - colormaps[boom_cm]) >> 8;
   batch_size++;
 }

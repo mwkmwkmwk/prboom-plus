@@ -121,6 +121,7 @@ extern const lighttable_t *(*zlight)[MAXLIGHTZ];
 extern const lighttable_t *fullcolormap;
 extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
 extern const lighttable_t **colormaps;
+extern int *colormap_fd;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
 //e6y: for Boom colormaps in OpenGL mode
