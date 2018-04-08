@@ -467,7 +467,7 @@ void R_DrawMaskedColumn(
       bottomscreen = topscreen + spryscale*post->length;
 
       dcvars->texture_fd = patch->doomdev_fd;
-      dcvars->texture_base = column->pixels;
+      dcvars->texture_base = patch->pixels;
       dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
       dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
 
