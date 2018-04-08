@@ -59,9 +59,15 @@
 #define SRC_SCR 2
 #define DEST_SCR 3
 
+#if 0
 static screeninfo_t wipe_scr_start;
 static screeninfo_t wipe_scr_end;
 static screeninfo_t wipe_scr;
+#endif
+
+#define wipe_scr screens[0]
+#define wipe_scr_start screens[SRC_SCR]
+#define wipe_scr_end screens[DEST_SCR]
 
 // e6y: resolution limitation is removed
 static int *y_lookup = NULL;
@@ -174,6 +180,7 @@ static int wipe_exitMelt(int ticks)
   }
 #endif
 
+#if 0
   V_FreeScreen(&wipe_scr_start);
   wipe_scr_start.width = 0;
   wipe_scr_start.height = 0;
@@ -183,6 +190,7 @@ static int wipe_exitMelt(int ticks)
   // Paranoia
   screens[SRC_SCR] = wipe_scr_start;
   screens[DEST_SCR] = wipe_scr_end;
+#endif
   return 0;
 }
 
@@ -199,6 +207,7 @@ int wipe_StartScreen(void)
   }
 #endif
 
+#if 0
   wipe_scr_start.width = SCREENWIDTH;
   wipe_scr_start.height = SCREENHEIGHT;
   wipe_scr_start.byte_pitch = screens[0].byte_pitch;
@@ -212,6 +221,7 @@ int wipe_StartScreen(void)
   wipe_scr_start.not_on_heap = false;
   V_AllocScreen(&wipe_scr_start);
   screens[SRC_SCR] = wipe_scr_start;
+#endif
   V_CopyRect(0, SRC_SCR, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // Copy start screen to buffer
   return 0;
 }
@@ -229,6 +239,7 @@ int wipe_EndScreen(void)
   }
 #endif
 
+#if 0
   wipe_scr_end.width = SCREENWIDTH;
   wipe_scr_end.height = SCREENHEIGHT;
   wipe_scr_end.byte_pitch = screens[0].byte_pitch;
@@ -242,6 +253,7 @@ int wipe_EndScreen(void)
   wipe_scr_end.not_on_heap = false;
   V_AllocScreen(&wipe_scr_end);
   screens[DEST_SCR] = wipe_scr_end;
+#endif
   V_CopyRect(0, DEST_SCR, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // Copy end screen to buffer
   V_CopyRect(SRC_SCR, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // restore start screen
   return 0;
@@ -255,7 +267,9 @@ int wipe_ScreenWipe(int ticks)
   if (!go)                                         // initial stuff
     {
       go = 1;
+#if 0
       wipe_scr = screens[0];
+#endif
       wipe_initMelt(ticks);
     }
   // do a piece of wipe-in
