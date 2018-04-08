@@ -466,6 +466,8 @@ void R_DrawMaskedColumn(
       topscreen = sprtopscreen + spryscale*post->topdelta;
       bottomscreen = topscreen + spryscale*post->length;
 
+      dcvars->texture_fd = patch->doomdev_fd;
+      dcvars->texture_base = column->pixels;
       dcvars->yl = (int)((topscreen+FRACUNIT-1)>>FRACBITS);
       dcvars->yh = (int)((bottomscreen-1)>>FRACBITS);
 
@@ -478,8 +480,6 @@ void R_DrawMaskedColumn(
       // killough 3/2/98, 3/27/98: Failsafe against overflow/crash:
       if (dcvars->yl <= dcvars->yh && dcvars->yh < viewheight)
         {
-          dcvars->texture_fd = patch->doomdev_fd;
-          dcvars->texture_base = column->pixels;
           dcvars->source = column->pixels + post->topdelta;
           dcvars->prevsource = prevcolumn->pixels + post->topdelta;
           dcvars->nextsource = nextcolumn->pixels + post->topdelta;
@@ -570,6 +570,8 @@ static void R_DrawVisSprite(vissprite_t *vis)
     sprtopscreen += (viewheight/2 - centery)<<FRACBITS;
   }
 
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevUploadPatch(patch);
   for (dcvars.x=vis->x1 ; dcvars.x<=vis->x2 ; dcvars.x++, frac += vis->xiscale)
     {
       texturecolumn = frac>>FRACBITS;

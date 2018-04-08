@@ -125,7 +125,7 @@ void R_InitPatches(void) {
     texture_composites = malloc(numtextures * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(texture_composites, 0, sizeof(rpatch_t)*numtextures);
-    for (i = 0; i < numlumps; i++)
+    for (i = 0; i < numtextures; i++)
       texture_composites[i].doomdev_fd = -1;
   }
 

@@ -469,10 +469,12 @@ static void R_DoDrawPlane(visplane_t *pl)
       // disable sky texture scaling if status bar is used
       // old code: dcvars.iscale = FRACUNIT*200/viewheight;
       dcvars.iscale = skyiscale;
-      dcvars.texture_base = tex_patch->pixels;
-      dcvars.texture_fd = tex_patch->doomdev_fd;
 
       tex_patch = R_CacheTextureCompositePatchNum(texture);
+      if (V_GetMode() == VID_MODEHARD)
+        I_DoomDevUploadPatch(tex_patch);
+      dcvars.texture_base = tex_patch->pixels;
+      dcvars.texture_fd = tex_patch->doomdev_fd;
 
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
