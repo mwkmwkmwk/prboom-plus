@@ -1023,7 +1023,7 @@ void I_InitScreenResolution(void)
   I_DoomDevFreeScreens();
 
   // set first three to standard values
-  for (i=0; i<3; i++) {
+  for (i=0; i<4; i++) {
     screens[i].width = REAL_SCREENWIDTH;
     screens[i].height = REAL_SCREENHEIGHT;
     screens[i].byte_pitch = REAL_SCREENPITCH;
