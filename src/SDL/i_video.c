@@ -533,7 +533,11 @@ void I_FinishUpdate (void)
   }
 #endif
 
-  if ((screen_multiply > 1) || SDL_MUSTLOCK(screen)) {
+  if (V_GetMode() == VID_MODEHARD) {
+    I_DoomDevRead(0);
+  }
+
+  if ((screen_multiply > 1) || SDL_MUSTLOCK(screen) || V_GetMode() == VID_MODEHARD) {
       int h;
       byte *src;
       byte *dest;
@@ -1015,6 +1019,7 @@ void I_InitScreenResolution(void)
   I_CalculateRes(w, h);
   V_DestroyUnusedTrueColorPalettes();
   V_FreeScreens();
+  I_DoomDevFreeScreens();
 
   // set first three to standard values
   for (i=0; i<3; i++) {
@@ -1115,6 +1120,8 @@ int I_GetModeFromString(const char *modestr)
     mode = VID_MODE32;
   } else if (!stricmp(modestr,"32bit")) {
     mode = VID_MODE32;
+  } else if (!stricmp(modestr,"doomdev")) {
+    mode = VID_MODEHARD;
   } else if (!stricmp(modestr,"gl")) {
     mode = VID_MODEGL;
   } else if (!stricmp(modestr,"OpenGL")) {
@@ -1273,7 +1280,7 @@ void I_UpdateVideoMode(void)
     lprintf(LO_INFO, "I_UpdateVideoMode: 0x%x, %s, %s\n", init_flags, screen->pixels ? "SDL buffer" : "own buffer", SDL_MUSTLOCK(screen) ? "lock-and-copy": "direct access");
 
     // Get the info needed to render to the display
-    if (screen_multiply==1 && !SDL_MUSTLOCK(screen))
+    if (screen_multiply==1 && !SDL_MUSTLOCK(screen) && V_GetMode() != VID_MODEHARD)
     {
       screens[0].not_on_heap = true;
       screens[0].data = (unsigned char *) (screen->pixels);
@@ -1287,6 +1294,10 @@ void I_UpdateVideoMode(void)
     }
 
     V_AllocScreens();
+    if (V_GetMode() == VID_MODEHARD)
+    {
+      I_DoomDevAllocScreens();
+    }
 
     R_InitBuffer(SCREENWIDTH, SCREENHEIGHT);
   }

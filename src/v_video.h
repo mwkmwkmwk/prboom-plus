@@ -141,6 +141,7 @@ typedef struct {
   int byte_pitch;      // tha actual width of one line, used when mallocing
   int short_pitch;     // tha actual width of one line, used when mallocing
   int int_pitch;       // tha actual width of one line, used when mallocing
+  int doomdev_fd;
 } screeninfo_t;
 
 #define NUM_SCREENS 6
@@ -174,6 +175,7 @@ typedef enum {
   VID_MODE15,
   VID_MODE16,
   VID_MODE32,
+  VID_MODEHARD,
   VID_MODEGL,
   VID_MODEMAX
 } video_mode_t;

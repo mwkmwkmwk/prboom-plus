@@ -47,6 +47,7 @@
 #include "m_bbox.h"
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
+#include "i_doomdev.h"
 #include "i_video.h"
 #include "r_filter.h"
 #include "lprintf.h"
@@ -381,6 +382,7 @@ void V_Init (void)
     screens[i].byte_pitch = 0;
     screens[i].short_pitch = 0;
     screens[i].int_pitch = 0;
+    screens[i].doomdev_fd = -1;
   }
 }
 
@@ -1097,6 +1099,21 @@ void V_InitMode(video_mode_t mode) {
       V_PlotPixelWu = V_PlotPixelWu32;
       V_DrawLine = WRAP_V_DrawLine;
       V_DrawLineWu = WRAP_V_DrawLineWu;
+      current_videomode = VID_MODE32;
+      break;
+    case VID_MODEHARD:
+      lprintf(LO_INFO, "V_InitMode: using doomdev video mode\n");
+      V_CopyRect = I_DoomDevCopyRect;
+      V_FillRect = I_DoomDevFillRect;
+      V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+      V_FillFlat = FUNC_V_FillFlat; // XXX
+      V_FillPatch = FUNC_V_FillPatch;
+      V_DrawBackground = I_DoomDevDrawBackground;
+      V_PlotPixel = I_DoomDevPlotPixel;
+      V_PlotPixelWu = I_DoomDevPlotPixelWu;
+      V_DrawLine = I_DoomDevDrawLine;
+      V_DrawLineWu = I_DoomDevDrawLine;
       current_videomode = VID_MODE32;
       break;
 #ifdef GL_DOOM

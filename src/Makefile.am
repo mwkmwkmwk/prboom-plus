@@ -73,6 +73,9 @@ COMMON_SRC = \
  i_sound.h \
  i_system.h \
  i_video.h \
+ i_doomdev.c \
+ i_doomdev.h \
+ doomdev.h \
  info.c \
  info.h \
  lprintf.c \
