@@ -12,6 +12,7 @@
 int doom_fd = -1;
 int doomdev_surf_width;
 int doomdev_surf_height;
+int translations_fd = -1;
 
 enum batch_mode {
   BATCH_NONE,
@@ -38,6 +39,7 @@ int batch_colormap_fd;
 const byte *batch_texture;
 int batch_texture_fd;
 int batch_draw_flags;
+int batch_translation;
 
 void I_DoomDevFlushBatch(void)
 {
@@ -45,7 +47,7 @@ void I_DoomDevFlushBatch(void)
   if (batch_mode == BATCH_NONE)
     return;
   while (done < batch_size) {
-    int res = 1; // XXX
+    int res = -1;
     switch (batch_mode) {
     case BATCH_FILL:
     {
@@ -81,7 +83,8 @@ void I_DoomDevFlushBatch(void)
 	.texture_fd = batch_texture_fd,
 	.colormaps_fd = batch_colormap_fd,
 	.draw_flags = batch_draw_flags,
-	// XXX translations
+	.translations_fd = translations_fd,
+	.translation_idx = batch_translation,
         .columns_ptr = (uint64_t)(batch_columns + done),
         .columns_num = batch_size - done,
       };
@@ -133,6 +136,14 @@ void I_DoomDevAllocScreens(void)
 {
   int i;
   int width = screens[0].width;
+  byte *trans = malloc((CR_LIMIT + 3) * 256);
+  struct doomdev_ioctl_create_colormaps xlat_param = {
+    .data_ptr = (uint64_t)(uintptr_t)trans,
+    .num = CR_LIMIT + 3,
+  };
+  for (i = 0; i < CR_LIMIT; i++)
+    memcpy(trans + i * 256, colrngs[i], 256);
+  memcpy(trans + CR_LIMIT * 256, translationtables, 256 * 3);
   if (width & 0x3f) {
     width |= 0x3f;
     width++;
@@ -153,6 +164,9 @@ void I_DoomDevAllocScreens(void)
       I_Error("doomdev create_surface fail");
     screens[i].doomdev_fd = fd;
   }
+  translations_fd = ioctl(doom_fd, DOOMDEV_IOCTL_CREATE_COLORMAPS, &xlat_param);
+  if (translations_fd < 0)
+    I_Error("doomdev create_colormap translation fail");
 }
 
 void I_DoomDevFreeScreens(void)
@@ -174,6 +188,9 @@ void I_DoomDevFreeScreens(void)
       close(screens[i].doomdev_fd);
     screens[i].doomdev_fd = -1;
   }
+  if (translations_fd != -1)
+    close(translations_fd);
+  translations_fd = -1;
   if (doom_fd != -1)
     close(doom_fd);
   doom_fd = -1;
@@ -346,13 +363,20 @@ void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars)
 {
   if (dcvars->yl > dcvars->yh)
     return;
-  // XXX
-  int draw_flags = DOOMDEV_DRAW_FLAGS_COLORMAP;
+  int i;
+  int xlat = 0;
+  int draw_flags = DOOMDEV_DRAW_FLAGS_COLORMAP | DOOMDEV_DRAW_FLAGS_TRANSLATE;
+  for (i = 0; i < 3; i++)
+    if (dcvars->translation == translationtables + i * 256)
+      xlat = CR_LIMIT + i;
+  for (i = 0; i < CR_LIMIT; i++)
+    if (dcvars->translation == colrngs[i])
+      xlat = i;
   if (dcvars->flags & DRAW_COLUMN_ISPATCH)
-    draw_flags = 0;
+    draw_flags = DOOMDEV_DRAW_FLAGS_TRANSLATE;
   if (batch_mode != BATCH_COLUMNS || batch_size >= MAX_BATCH_SIZE ||
 	  batch_scrn_dst != drawvars.screen || batch_texture != dcvars->texture_base ||
-	  batch_draw_flags != draw_flags)
+	  batch_draw_flags != draw_flags || batch_translation != xlat)
     I_DoomDevFlushBatch();
   batch_mode = BATCH_COLUMNS;
   batch_draw_flags = draw_flags;
@@ -360,6 +384,7 @@ void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars)
   batch_texture_fd = dcvars->texture_fd;
   batch_colormap_fd = colormap_fd[boom_cm];
   batch_texture = dcvars->texture_base;
+  batch_translation = xlat;
   batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
   batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
   batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
