@@ -241,9 +241,6 @@ void I_DoomDevDrawBackground(const char *flatname, int n)
 
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
 {
-  // XXX
-  if (!(dcvars->flags & DRAW_COLUMN_ISPATCH))
-	  return;
   if (batch_mode != BATCH_COLUMNS || batch_size >= MAX_BATCH_SIZE ||
 	  batch_scrn_dst != 0 || batch_texture != dcvars->texture_base)
     I_DoomDevFlushBatch();
@@ -252,7 +249,7 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
   batch_texture_fd = dcvars->texture_fd;
   batch_texture = dcvars->texture_base;
   batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
-  batch_columns[batch_size].ustart = dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale;
+  batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
   batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
   batch_columns[batch_size].y1 = dcvars->yl;
   batch_columns[batch_size].y2 = dcvars->yh;
