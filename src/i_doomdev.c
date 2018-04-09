@@ -430,3 +430,19 @@ void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
   batch_spans[batch_size].colormap_idx = (dsvars->colormap - colormaps[boom_cm]) >> 8;
   batch_size++;
 }
+
+void I_DoomDevMeltColumn(int srcscrn, int destscrn, int x, int yoff, int height)
+{
+  if (batch_mode != BATCH_COPY || batch_size >= MAX_BATCH_SIZE || batch_scrn_dst != destscrn || batch_scrn_src != srcscrn)
+    I_DoomDevFlushBatch();
+  batch_mode = BATCH_COPY;
+  batch_scrn_dst = destscrn;
+  batch_scrn_src = srcscrn;
+  batch_copy[batch_size].pos_dst_x = x;
+  batch_copy[batch_size].pos_dst_y = yoff;
+  batch_copy[batch_size].pos_src_x = x;
+  batch_copy[batch_size].pos_src_y = 0;
+  batch_copy[batch_size].width = 1;
+  batch_copy[batch_size].height = height;
+  batch_size++;
+}

@@ -25,5 +25,6 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars);
 void I_DoomDevDrawFuzzColumn(pdraw_column_vars_s dcvars);
 void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars);
 void I_DoomDevDrawSpan(draw_span_vars_t *dsvars);
+void I_DoomDevMeltColumn(int srcscrn, int destscrn, int x, int yoff, int height);
 
 #endif
