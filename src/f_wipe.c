@@ -86,7 +86,7 @@ static int wipe_initMelt(int ticks)
   int i;
 
   if (V_GetMode() == VID_MODEHARD) {
-    I_DoomDevCopyRect(2, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
+    I_DoomDevCopyRect(SRC_SCR, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
   } else if (V_GetMode() != VID_MODEGL) {
     // copy start screen to main screen
     for(i=0;i<SCREENHEIGHT;i++)
@@ -116,9 +116,6 @@ static int wipe_doMelt(int ticks)
   int i;
   const int depth = V_GetPixelDepth();
 
-  if (V_GetMode() == VID_MODEHARD)
-    I_DoomDevCopyRect(3, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
-
   while (ticks--) {
     for (i=0;i<(SCREENWIDTH);i++) {
       if (y_lookup[i]<0) {
@@ -139,7 +136,9 @@ static int wipe_doMelt(int ticks)
         if (y_lookup[i]+dy >= SCREENHEIGHT)
           dy = SCREENHEIGHT - y_lookup[i];
 
-       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
+       if (V_GetMode() == VID_MODEHARD) {
+         I_DoomDevCopyRect(DEST_SCR, 0, i, y_lookup[i], 1, dy, 0);
+       } else if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
         s = wipe_scr_end.data    + (y_lookup[i]*wipe_scr_end.byte_pitch+(i*depth));
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=dy;j;j--) {
@@ -151,7 +150,7 @@ static int wipe_doMelt(int ticks)
        }
         y_lookup[i] += dy;
        if (V_GetMode() == VID_MODEHARD) {
-        I_DoomDevMeltColumn(2, 0, i, y_lookup[i], SCREENHEIGHT - y_lookup[i]);
+        I_DoomDevMeltColumn(SRC_SCR, 0, i, y_lookup[i], SCREENHEIGHT - y_lookup[i]);
        } else if (V_GetMode() != VID_MODEGL) {
         s = wipe_scr_start.data  + (i*depth);
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
