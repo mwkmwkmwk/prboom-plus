@@ -308,6 +308,7 @@ void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, 
 {
   int res;
   I_DoomDevFlushBatch();
+  lump += firstflat;
   if (lumpinfo[lump].flat_fd == -1)
   {
     byte *data = W_CacheLumpNum(lump);
