@@ -304,8 +304,9 @@ void I_DoomDevDrawLine(fline_t* fl, int color)
   batch_size++;
 }
 
-void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
+void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  int res;
   I_DoomDevFlushBatch();
   if (lumpinfo[lump].flat_fd == -1)
   {
