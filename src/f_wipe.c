@@ -128,6 +128,8 @@ static int wipe_doMelt(int ticks)
       done = false;
       continue;
     }
+    if (V_GetMode() == VID_MODEHARD)
+      I_DoomDevCopyRect(DEST_SCR, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
     if (y_lookup[i] < SCREENHEIGHT) {
         byte *s, *d;
         int j, k, dy;
@@ -142,9 +144,7 @@ static int wipe_doMelt(int ticks)
         if (y_lookup[i]+dy >= SCREENHEIGHT)
           dy = SCREENHEIGHT - y_lookup[i];
 
-       if (V_GetMode() == VID_MODEHARD) {
-         I_DoomDevCopyRect(DEST_SCR, 0, i, y_lookup[i], 1, dy, 0);
-       } else if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
+       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
         s = wipe_scr_end.data    + (y_lookup[i]*wipe_scr_end.byte_pitch+(i*depth));
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=dy;j;j--) {
