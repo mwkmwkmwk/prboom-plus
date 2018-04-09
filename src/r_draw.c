@@ -1207,13 +1207,10 @@ void R_FillBackScreen (void)
 
 void R_VideoErase(int x, int y, int count)
 {
-  if (V_GetMode() == VID_MODEHARD) {
-    I_DoomDevCopyRect(1, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
-  } else if (V_GetMode() != VID_MODEGL) {
+  if (V_GetMode() != VID_MODEGL)
     memcpy(screens[0].data+y*screens[0].byte_pitch+x*V_GetPixelDepth(),
            screens[1].data+y*screens[1].byte_pitch+x*V_GetPixelDepth(),
            count*V_GetPixelDepth());   // LFB copy.
-  }
 }
 
 //
@@ -1237,10 +1234,15 @@ void R_DrawViewBorder(void)
      ((SCREENHEIGHT != viewheight) ||
      ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {
-    for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
-    {
-      R_VideoErase (0, i, wide_offsetx);
-      R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
+    if (V_GetMode() == VID_MODEHARD) {
+      I_DoomDevCopyRect(1, 0, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, wide_offsetx, ST_SCALED_HEIGHT, 0);
+      I_DoomDevCopyRect(1, 0, SCREENWIDTH - wide_offsetx, SCREENHEIGHT - ST_SCALED_HEIGHT, wide_offsetx, ST_SCALED_HEIGHT, 0);
+    } else {
+      for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
+      {
+        R_VideoErase (0, i, wide_offsetx);
+        R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
+      }
     }
   }
 
@@ -1250,17 +1252,24 @@ void R_DrawViewBorder(void)
   top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
   side = (SCREENWIDTH-scaledviewwidth)/2;
 
-  // copy top
-  for (i = 0; i < top; i++)
-    R_VideoErase (0, i, SCREENWIDTH);
+  if (V_GetMode() == VID_MODEHARD) {
+    I_DoomDevCopyRect(1, 0, 0, 0, SCREENWIDTH, top, 0);
+    I_DoomDevCopyRect(1, 0, 0, top, side, viewheight, 0);
+    I_DoomDevCopyRect(1, 0, viewwidth+side, top, side, viewheight, 0);
+    I_DoomDevCopyRect(1, 0, 0, top+viewheight, SCREENWIDTH, SCREENHEIGHT - ST_SCALED_HEIGHT - top - viewheight, 0);
+  } else {
+    // copy top
+    for (i = 0; i < top; i++)
+      R_VideoErase (0, i, SCREENWIDTH);
 
-  // copy sides
-  for (i = top; i < (top+viewheight); i++) {
-    R_VideoErase (0, i, side);
-    R_VideoErase (viewwidth+side, i, side);
+    // copy sides
+    for (i = top; i < (top+viewheight); i++) {
+      R_VideoErase (0, i, side);
+      R_VideoErase (viewwidth+side, i, side);
+    }
+
+    // copy bottom
+    for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
+      R_VideoErase (0, i, SCREENWIDTH);
   }
-
-  // copy bottom
-  for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
-    R_VideoErase (0, i, SCREENWIDTH);
 }
