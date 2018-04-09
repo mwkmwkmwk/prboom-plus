@@ -127,6 +127,8 @@ static int wipe_doMelt(int ticks)
       t--;
     }
     if (!t) {
+      if (V_GetMode() == VID_MODEHARD)
+        I_DoomDevMeltColumn(SRC_SCR, 0, i, 0, SCREENHEIGHT);
       done = false;
       continue;
     }
@@ -166,9 +168,9 @@ static int wipe_doMelt(int ticks)
         }
        }
         done = false;
+      if (V_GetMode() == VID_MODEHARD)
+        I_DoomDevMeltColumn(SRC_SCR, 0, i, y_lookup[i], SCREENHEIGHT - y_lookup[i]);
     }
-    if (V_GetMode() == VID_MODEHARD)
-      I_DoomDevMeltColumn(SRC_SCR, 0, i, y_lookup[i], SCREENHEIGHT - y_lookup[i]);
   }
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
