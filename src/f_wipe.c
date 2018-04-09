@@ -113,17 +113,22 @@ static int wipe_initMelt(int ticks)
 static int wipe_doMelt(int ticks)
 {
   dboolean done = true;
-  int i;
+  int i, t;
   const int depth = V_GetPixelDepth();
 
-  while (ticks--) {
-    for (i=0;i<(SCREENWIDTH);i++) {
-      if (y_lookup[i]<0) {
-        y_lookup[i]++;
-        done = false;
-        continue;
-      }
-      if (y_lookup[i] < SCREENHEIGHT) {
+  if (!ticks)
+    return done;
+  for (i=0;i<(SCREENWIDTH);i++) {
+    t = ticks;
+    while (y_lookup[i]<0 && t) {
+      y_lookup[i]++;
+      t--;
+    }
+    if (!t) {
+      done = false;
+      continue;
+    }
+    if (y_lookup[i] < SCREENHEIGHT) {
         byte *s, *d;
         int j, k, dy;
 
@@ -133,6 +138,7 @@ static int wipe_doMelt(int ticks)
           *  so it takes no longer in high res
           */
         dy = (y_lookup[i] < 16) ? y_lookup[i]+1 : SCREENHEIGHT/25;
+	dy *= t;
         if (y_lookup[i]+dy >= SCREENHEIGHT)
           dy = SCREENHEIGHT - y_lookup[i];
 
@@ -162,7 +168,6 @@ static int wipe_doMelt(int ticks)
         }
        }
         done = false;
-      }
     }
   }
 #ifdef GL_DOOM
