@@ -168,6 +168,7 @@ void I_DoomDevAllocScreens(void)
   if (translations_fd < 0)
     I_Error("doomdev create_colormap translation fail");
   free(trans);
+  I_DoomDevUploadColormap(boom_cm);
 }
 
 void I_DoomDevFreeScreens(void)
