@@ -276,6 +276,21 @@ void I_DoomDevFillRect(int scrn, int x, int y, int width, int height, byte colou
 
 void I_DoomDevCopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags)
 {
+  if (flags & VPT_STRETCH_MASK)
+  {
+    stretch_param_t *params;
+    int sx = x;
+    int sy = y;
+
+    params = &stretch_params[flags & VPT_ALIGN_MASK];
+
+    x  = params->video->x1lookup[x];
+    y  = params->video->y1lookup[y];
+    width  = params->video->x2lookup[sx + width - 1] - x + 1;
+    height = params->video->y2lookup[sy + height - 1] - y + 1;
+    x += params->deltax1;
+    y += params->deltay1;
+  }
   if (batch_mode != BATCH_COPY || batch_size >= MAX_BATCH_SIZE || batch_scrn_dst != destscrn || batch_scrn_src != srcscrn)
     I_DoomDevFlushBatch();
   batch_mode = BATCH_COPY;
