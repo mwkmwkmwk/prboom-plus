@@ -304,9 +304,21 @@ void I_DoomDevDrawLine(fline_t* fl, int color)
   batch_size++;
 }
 
-void I_DoomDevDrawBackground(const char *flatname, int n)
+void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 {
-  // XXX
+  I_DoomDevFlushBatch();
+  if (lumpinfo[lump].flat_fd == -1)
+  {
+    byte *data = W_CacheLumpNum(lump);
+    I_DoomDevUploadFlat(lump, data);
+    W_UnlockLumpNum(lump);
+  }
+  struct doomdev_surf_ioctl_draw_background param = {
+    .flat_fd = lumpinfo[lump].flat_fd,
+  };
+  res = ioctl(screens[scrn].doomdev_fd, DOOMDEV_SURF_IOCTL_DRAW_BACKGROUND, &param);
+  if (res < 0)
+    I_Error("doomdev fill_flat fail");
 }
 
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)

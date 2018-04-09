@@ -18,6 +18,7 @@ void I_DoomDevPlotPixel(int scrn, int x, int y, byte color);
 void I_DoomDevPlotPixelWu(int scrn, int x, int y, byte color, int weight);
 void I_DoomDevDrawLine(fline_t* fl, int color);
 void I_DoomDevDrawBackground(const char *flatname, int n);
+void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, enum patch_translation_e flags);
 void I_DoomDevCopyRect(int srcscrn, int destscrn, int x, int y, int width, int height, enum patch_translation_e flags);
 void I_DoomDevFillRect(int scrn, int x, int y, int width, int height, byte colour);
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars);

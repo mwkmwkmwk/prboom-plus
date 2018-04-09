@@ -1115,9 +1115,9 @@ void V_InitMode(video_mode_t mode) {
       V_FillRect = I_DoomDevFillRect;
       V_DrawNumPatch = FUNC_V_DrawNumPatch;
       V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
-      V_FillFlat = FUNC_V_FillFlat; // XXX
+      V_FillFlat = I_DoomDevFillFlat;
       V_FillPatch = FUNC_V_FillPatch;
-      V_DrawBackground = I_DoomDevDrawBackground;
+      V_DrawBackground = FUNC_V_DrawBackground;
       V_PlotPixel = I_DoomDevPlotPixel;
       V_PlotPixelWu = I_DoomDevPlotPixelWu;
       V_DrawLine = I_DoomDevDrawLine;
