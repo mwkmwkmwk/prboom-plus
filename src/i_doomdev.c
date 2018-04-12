@@ -30,14 +30,18 @@ struct doomdev_fill_rect batch_fill[MAX_BATCH_SIZE];
 struct doomdev_copy_rect batch_copy[MAX_BATCH_SIZE];
 struct doomdev_line batch_lines[MAX_BATCH_SIZE];
 struct doomdev_column batch_columns[MAX_BATCH_SIZE];
+struct doomdev_column batch_columns_bot[MAX_BATCH_SIZE];
 struct doomdev_span batch_spans[MAX_BATCH_SIZE];
 
 enum batch_mode batch_mode = BATCH_NONE;
 int batch_size = 0;
+int batch_size_bot = 0;
 int batch_colormap_fd;
 
 const byte *batch_texture;
+const byte *batch_texture_bot;
 int batch_texture_fd;
+int batch_texture_fd_bot;
 int batch_draw_flags;
 int batch_translation;
 
@@ -108,8 +112,27 @@ void I_DoomDevFlushBatch(void)
       I_Error("doomdev render fail");
     done += res;
   }
+  done = 0;
+  while (done < batch_size_bot) {
+    struct doomdev_surf_ioctl_draw_columns param = {
+      .texture_fd = batch_texture_fd_bot,
+      .colormaps_fd = batch_colormap_fd,
+      .draw_flags = batch_draw_flags,
+      .translations_fd = translations_fd,
+      .translation_idx = batch_translation,
+      .columns_ptr = (uint64_t)(batch_columns_bot + done),
+      .columns_num = batch_size_bot - done,
+    };
+    int res = ioctl(screens[batch_scrn_dst].doomdev_fd, DOOMDEV_SURF_IOCTL_DRAW_COLUMNS, &param);
+    if (res <= 0)
+      I_Error("doomdev render fail");
+    done += res;
+  }
   batch_mode = BATCH_NONE;
   batch_size = 0;
+  batch_size_bot = 0;
+  batch_texture = 0;
+  batch_texture_bot = 0;
 }
 
 void I_DoomDevRead(int idx)
@@ -344,26 +367,41 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
   if (dcvars->yl > dcvars->yh)
     return;
   int draw_flags = DOOMDEV_DRAW_FLAGS_COLORMAP;
+  struct doomdev_column *columns;
+  int *size;
   if (dcvars->flags & DRAW_COLUMN_ISPATCH)
     draw_flags = 0;
   if (batch_mode != BATCH_COLUMNS || batch_size >= MAX_BATCH_SIZE ||
-	  batch_scrn_dst != drawvars.screen || batch_texture != dcvars->texture_base ||
+	  batch_scrn_dst != drawvars.screen || batch_size_bot >= MAX_BATCH_SIZE ||
 	  batch_draw_flags != draw_flags)
     I_DoomDevFlushBatch();
+  if (dcvars->flags & DRAW_COLUMN_ISBOT) {
+    if (batch_texture_bot && batch_texture_bot != dcvars->texture_base)
+      I_DoomDevFlushBatch();
+    batch_texture_bot = dcvars->texture_base;
+    batch_texture_fd_bot = dcvars->texture_fd;
+    columns = batch_columns_bot;
+    size = &batch_size_bot;
+  } else {
+    if (batch_texture && batch_texture != dcvars->texture_base)
+      I_DoomDevFlushBatch();
+    batch_texture = dcvars->texture_base;
+    batch_texture_fd = dcvars->texture_fd;
+    columns = batch_columns;
+    size = &batch_size;
+  }
   batch_mode = BATCH_COLUMNS;
   batch_draw_flags = draw_flags;
   batch_scrn_dst = drawvars.screen;
-  batch_texture_fd = dcvars->texture_fd;
   batch_colormap_fd = colormap_fd[boom_cm];
-  batch_texture = dcvars->texture_base;
-  batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
-  batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
-  batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
-  batch_columns[batch_size].y1 = dcvars->yl + drawvars.yoff;
-  batch_columns[batch_size].y2 = dcvars->yh + drawvars.yoff;
-  batch_columns[batch_size].x = dcvars->x + drawvars.xoff;
-  batch_columns[batch_size].colormap_idx = (dcvars->colormap - colormaps[boom_cm]) >> 8;
-  batch_size++;
+  columns[*size].texture_offset = dcvars->source - dcvars->texture_base;
+  columns[*size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
+  columns[*size].ustep = dcvars->iscale & 0x3ffffff;
+  columns[*size].y1 = dcvars->yl + drawvars.yoff;
+  columns[*size].y2 = dcvars->yh + drawvars.yoff;
+  columns[*size].x = dcvars->x + drawvars.xoff;
+  columns[*size].colormap_idx = (dcvars->colormap - colormaps[boom_cm]) >> 8;
+  (*size)++;
 }
 
 void I_DoomDevDrawFuzzColumn(pdraw_column_vars_s dcvars)

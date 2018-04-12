@@ -552,6 +552,7 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch,texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch,texturecolumn+1);
                   dcvars.texheight = toptexheight;
+                  dcvars.flags = 0;
                   colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(toptexture);
                   tex_patch = NULL;
@@ -590,6 +591,7 @@ static void R_RenderSegLoop (void)
                   dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
                   dcvars.texheight = bottomtexheight;
+                  dcvars.flags = DRAW_COLUMN_ISBOT;
                   colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(bottomtexture);
                   tex_patch = NULL;
@@ -620,6 +622,8 @@ static void R_RenderSegLoop (void)
       topfrac += topstep;
       bottomfrac += bottomstep;
     }
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevFlushBatch();
 }
 
 // killough 5/2/98: move from r_main.c, made static, simplified

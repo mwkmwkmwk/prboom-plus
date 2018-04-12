@@ -14,6 +14,8 @@ void I_DoomDevUploadColormap(int idx);
 void I_DoomDevUploadPatch(rpatch_t *patch);
 void I_DoomDevClosePatch(rpatch_t *patch);
 
+void I_DoomDevFlushBatch(void);
+
 void I_DoomDevPlotPixel(int scrn, int x, int y, byte color);
 void I_DoomDevPlotPixelWu(int scrn, int x, int y, byte color, int weight);
 void I_DoomDevDrawLine(fline_t* fl, int color);

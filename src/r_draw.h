@@ -67,7 +67,8 @@ enum sloped_edge_type_e {
 
 typedef enum
 {
-  DRAW_COLUMN_ISPATCH = 0x00000001
+  DRAW_COLUMN_ISPATCH = 0x00000001,
+  DRAW_COLUMN_ISBOT = 0x00000002,
 } draw_column_flags_e;
 
 typedef struct draw_column_vars_s* pdraw_column_vars_s;
