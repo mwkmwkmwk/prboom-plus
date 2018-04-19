@@ -362,6 +362,17 @@ void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, 
     I_Error("doomdev fill_flat fail");
 }
 
+static uint32_t I_DoomDevComputeColumnStart(pdraw_column_vars_s dcvars)
+{
+	int res = dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale;
+	if (dcvars->texheight) {
+		res %= dcvars->texheight << 16;
+		if (res < 0)
+			res += dcvars->texheight << 16;
+	}
+	return res & 0x3ffffff;
+}
+
 void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
 {
   if (dcvars->yl > dcvars->yh)
@@ -395,7 +406,7 @@ void I_DoomDevDrawColumn(pdraw_column_vars_s dcvars)
   batch_scrn_dst = drawvars.screen;
   batch_colormap_fd = colormap_fd[boom_cm];
   columns[*size].texture_offset = dcvars->source - dcvars->texture_base;
-  columns[*size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
+  columns[*size].ustart = I_DoomDevComputeColumnStart(dcvars);
   columns[*size].ustep = dcvars->iscale & 0x3ffffff;
   columns[*size].y1 = dcvars->yl + drawvars.yoff;
   columns[*size].y2 = dcvars->yh + drawvars.yoff;
@@ -420,7 +431,7 @@ void I_DoomDevDrawFuzzColumn(pdraw_column_vars_s dcvars)
   batch_colormap_fd = colormap_fd[boom_cm];
   batch_texture = dcvars->texture_base;
   batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
-  batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
+  batch_columns[batch_size].ustart = I_DoomDevComputeColumnStart(dcvars);
   batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
   batch_columns[batch_size].y1 = dcvars->yl + drawvars.yoff;
   batch_columns[batch_size].y2 = dcvars->yh + drawvars.yoff;
@@ -456,7 +467,7 @@ void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars)
   batch_texture = dcvars->texture_base;
   batch_translation = xlat;
   batch_columns[batch_size].texture_offset = dcvars->source - dcvars->texture_base;
-  batch_columns[batch_size].ustart = (dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale) & 0x3ffffff;
+  batch_columns[batch_size].ustart = I_DoomDevComputeColumnStart(dcvars);
   batch_columns[batch_size].ustep = dcvars->iscale & 0x3ffffff;
   batch_columns[batch_size].y1 = dcvars->yl + drawvars.yoff;
   batch_columns[batch_size].y2 = dcvars->yh + drawvars.yoff;
