@@ -365,6 +365,8 @@ void I_DoomDevFillFlat(int lump, int scrn, int x, int y, int width, int height, 
 static uint32_t I_DoomDevComputeColumnStart(pdraw_column_vars_s dcvars)
 {
 	int res = dcvars->texturemid + (dcvars->yl - centery) * dcvars->iscale;
+	if (dcvars->flags & DRAW_COLUMN_ISPATCH)
+		return ((dcvars->yl - dcvars->dy) * dcvars->iscale) & 0xFFFF;
 	if (dcvars->texheight) {
 		res %= dcvars->texheight << 16;
 		if (res < 0)
