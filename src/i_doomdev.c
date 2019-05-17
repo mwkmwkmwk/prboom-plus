@@ -110,7 +110,7 @@ void I_DoomDevFlushBatch(void)
     ssize_t res = write(doom_fd, batch_cmds + done, sizeof *batch_cmds * (batch_size - done));
     if (res <= 0)
       I_Error("doomdev2 render fail");
-    done += res;
+    done += res / sizeof *batch_cmds;
   }
   done = 0;
   if (batch_size_bot)
@@ -119,7 +119,7 @@ void I_DoomDevFlushBatch(void)
     ssize_t res = write(doom_fd, batch_cmds_bot + done, sizeof *batch_cmds_bot * (batch_size_bot - done));
     if (res <= 0)
       I_Error("doomdev2 render fail");
-    done += res;
+    done += res / sizeof *batch_cmds;
   }
   batch_size = 0;
   batch_size_bot = 0;
