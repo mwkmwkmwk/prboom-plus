@@ -39,6 +39,7 @@
 
 #include "z_zone.h"
 #include "doomdef.h"
+#include "i_udoomdev.h"
 #include "i_video.h"
 #include "v_video.h"
 #include "m_random.h"
@@ -59,9 +60,15 @@
 #define SRC_SCR 2
 #define DEST_SCR 3
 
+#if 0
 static screeninfo_t wipe_scr_start;
 static screeninfo_t wipe_scr_end;
 static screeninfo_t wipe_scr;
+#endif
+
+#define wipe_scr screens[0]
+#define wipe_scr_start screens[SRC_SCR]
+#define wipe_scr_end screens[DEST_SCR]
 
 // e6y: resolution limitation is removed
 static int *y_lookup = NULL;
@@ -78,8 +85,9 @@ static int wipe_initMelt(int ticks)
 {
   int i;
 
-  if (V_GetMode() != VID_MODEGL)
-  {
+  if (V_GetMode() == VID_MODEHARD) {
+    I_DoomDevCopyRect(SRC_SCR, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, 0);
+  } else if (V_GetMode() != VID_MODEGL) {
     // copy start screen to main screen
     for(i=0;i<SCREENHEIGHT;i++)
     memcpy(wipe_scr.data+i*wipe_scr.byte_pitch,
@@ -105,17 +113,22 @@ static int wipe_initMelt(int ticks)
 static int wipe_doMelt(int ticks)
 {
   dboolean done = true;
-  int i;
+  int i, t;
   const int depth = V_GetPixelDepth();
 
-  while (ticks--) {
-    for (i=0;i<(SCREENWIDTH);i++) {
-      if (y_lookup[i]<0) {
-        y_lookup[i]++;
-        done = false;
-        continue;
-      }
-      if (y_lookup[i] < SCREENHEIGHT) {
+  if (!ticks)
+    return done;
+  for (i=0;i<(SCREENWIDTH);i++) {
+    t = ticks;
+    while (y_lookup[i]<0 && t) {
+      y_lookup[i]++;
+      t--;
+    }
+    if (!t) {
+      done = false;
+      continue;
+    }
+    if (y_lookup[i] < SCREENHEIGHT) {
         byte *s, *d;
         int j, k, dy;
 
@@ -125,10 +138,11 @@ static int wipe_doMelt(int ticks)
           *  so it takes no longer in high res
           */
         dy = (y_lookup[i] < 16) ? y_lookup[i]+1 : SCREENHEIGHT/25;
+	dy *= t;
         if (y_lookup[i]+dy >= SCREENHEIGHT)
           dy = SCREENHEIGHT - y_lookup[i];
 
-       if (V_GetMode() != VID_MODEGL) {
+       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
         s = wipe_scr_end.data    + (y_lookup[i]*wipe_scr_end.byte_pitch+(i*depth));
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=dy;j;j--) {
@@ -139,7 +153,7 @@ static int wipe_doMelt(int ticks)
         }
        }
         y_lookup[i] += dy;
-       if (V_GetMode() != VID_MODEGL) {
+       if (V_GetMode() != VID_MODEGL && V_GetMode() != VID_MODEHARD) {
         s = wipe_scr_start.data  + (i*depth);
         d = wipe_scr.data        + (y_lookup[i]*wipe_scr.byte_pitch+(i*depth));
         for (j=SCREENHEIGHT-y_lookup[i];j;j--) {
@@ -150,9 +164,10 @@ static int wipe_doMelt(int ticks)
         }
        }
         done = false;
-      }
     }
   }
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevMeltColumns(0, DEST_SCR, SRC_SCR, y_lookup);
 #ifdef GL_DOOM
   if (V_GetMode() == VID_MODEGL)
   {
@@ -174,6 +189,7 @@ static int wipe_exitMelt(int ticks)
   }
 #endif
 
+#if 0
   V_FreeScreen(&wipe_scr_start);
   wipe_scr_start.width = 0;
   wipe_scr_start.height = 0;
@@ -183,6 +199,7 @@ static int wipe_exitMelt(int ticks)
   // Paranoia
   screens[SRC_SCR] = wipe_scr_start;
   screens[DEST_SCR] = wipe_scr_end;
+#endif
   return 0;
 }
 
@@ -199,6 +216,7 @@ int wipe_StartScreen(void)
   }
 #endif
 
+#if 0
   wipe_scr_start.width = SCREENWIDTH;
   wipe_scr_start.height = SCREENHEIGHT;
   wipe_scr_start.byte_pitch = screens[0].byte_pitch;
@@ -212,6 +230,7 @@ int wipe_StartScreen(void)
   wipe_scr_start.not_on_heap = false;
   V_AllocScreen(&wipe_scr_start);
   screens[SRC_SCR] = wipe_scr_start;
+#endif
   V_CopyRect(0, SRC_SCR, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // Copy start screen to buffer
   return 0;
 }
@@ -229,6 +248,7 @@ int wipe_EndScreen(void)
   }
 #endif
 
+#if 0
   wipe_scr_end.width = SCREENWIDTH;
   wipe_scr_end.height = SCREENHEIGHT;
   wipe_scr_end.byte_pitch = screens[0].byte_pitch;
@@ -242,6 +262,7 @@ int wipe_EndScreen(void)
   wipe_scr_end.not_on_heap = false;
   V_AllocScreen(&wipe_scr_end);
   screens[DEST_SCR] = wipe_scr_end;
+#endif
   V_CopyRect(0, DEST_SCR, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // Copy end screen to buffer
   V_CopyRect(SRC_SCR, 0, 0, 0, SCREENWIDTH, SCREENHEIGHT, VPT_NONE); // restore start screen
   return 0;
@@ -255,7 +276,9 @@ int wipe_ScreenWipe(int ticks)
   if (!go)                                         // initial stuff
     {
       go = 1;
+#if 0
       wipe_scr = screens[0];
+#endif
       wipe_initMelt(ticks);
     }
   // do a piece of wipe-in

@@ -67,7 +67,8 @@ enum sloped_edge_type_e {
 
 typedef enum
 {
-  DRAW_COLUMN_ISPATCH = 0x00000001
+  DRAW_COLUMN_ISPATCH = 0x00000001,
+  DRAW_COLUMN_ISBOT = 0x00000002,
 } draw_column_flags_e;
 
 typedef struct draw_column_vars_s* pdraw_column_vars_s;
@@ -96,6 +97,8 @@ typedef struct draw_column_vars_s
   int                 drawingmasked;
   enum sloped_edge_type_e edgetype;
   unsigned int        flags; //e6y: for detect patches ind colfunc()
+  const byte          *texture_base;
+  unsigned            texture_doomdev_addr;
 } draw_column_vars_t;
 
 void R_SetDefaultDrawColumnVars(draw_column_vars_t *dcvars);
@@ -114,6 +117,7 @@ typedef struct {
   const byte          *source; // start of a 64*64 tile image
   const lighttable_t  *colormap;
   const lighttable_t  *nextcolormap;
+  unsigned            flat_doomdev_addr;
 } draw_span_vars_t;
 
 typedef struct {
@@ -123,6 +127,9 @@ typedef struct {
   int   byte_pitch;
   int   short_pitch;
   int   int_pitch;
+  int   screen;
+  int   xoff;
+  int   yoff;
 
   enum draw_filter_type_e filterwall;
   enum draw_filter_type_e filterfloor;

@@ -111,17 +111,22 @@ static int playpal_transparent, playpal_duplicate;
 
 //---------------------------------------------------------------------------
 void R_InitPatches(void) {
+  int i;
   if (!patches)
   {
     patches = malloc(numlumps * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(patches, 0, sizeof(rpatch_t)*numlumps);
+    for (i = 0; i < numlumps; i++)
+      patches[i].doomdev_addr = -1;
   }
   if (!texture_composites)
   {
     texture_composites = malloc(numtextures * sizeof(rpatch_t));
     // clear out new patches to signal they're uninitialized
     memset(texture_composites, 0, sizeof(rpatch_t)*numtextures);
+    for (i = 0; i < numtextures; i++)
+      texture_composites[i].doomdev_addr = -1;
   }
 
   if (!playpal_duplicate)
@@ -181,6 +186,24 @@ void R_FlushAllPatches(void) {
         free(texture_composites[i].data);
     free(texture_composites);
     texture_composites = NULL;
+  }
+}
+
+void R_FlushHardPatches()
+{
+  int i;
+
+  if (patches)
+  {
+    for (i=0; i < numlumps; i++)
+      if (patches[i].doomdev_addr != -1)
+        I_DoomDevClosePatch(&patches[i]);
+  }
+  if (texture_composites)
+  {
+    for (i=0; i<numtextures; i++)
+      if (texture_composites[i].doomdev_addr != -1)
+        I_DoomDevClosePatch(&texture_composites[i]);
   }
 }
 

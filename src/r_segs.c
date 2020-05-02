@@ -319,6 +319,8 @@ void R_RenderMaskedSegRange(drawseg_t *ds, int x1, int x2)
   }
 
   patch = R_CacheTextureCompositePatchNum(texnum);
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevUploadPatch(patch);
 
   // draw the columns
   for (dcvars.x = x1 ; dcvars.x <= x2 ; dcvars.x++, spryscale += rw_scalestep)
@@ -509,6 +511,10 @@ static void R_RenderSegLoop (void)
           dcvars.yh = yh;
           dcvars.texturemid = rw_midtexturemid;
           tex_patch = R_CacheTextureCompositePatchNum(midtexture);
+          if (V_GetMode() == VID_MODEHARD)
+            I_DoomDevUploadPatch(tex_patch);
+          dcvars.texture_base = tex_patch->pixels;
+          dcvars.texture_doomdev_addr = tex_patch->doomdev_addr;
           dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
           dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
           dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
@@ -538,10 +544,15 @@ static void R_RenderSegLoop (void)
                   dcvars.yh = mid;
                   dcvars.texturemid = rw_toptexturemid;
                   tex_patch = R_CacheTextureCompositePatchNum(toptexture);
+                  if (V_GetMode() == VID_MODEHARD)
+                    I_DoomDevUploadPatch(tex_patch);
+                  dcvars.texture_base = tex_patch->pixels;
+                  dcvars.texture_doomdev_addr = tex_patch->doomdev_addr;
                   dcvars.source = R_GetTextureColumn(tex_patch,texturecolumn);
                   dcvars.prevsource = R_GetTextureColumn(tex_patch,texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch,texturecolumn+1);
                   dcvars.texheight = toptexheight;
+                  dcvars.flags = 0;
                   colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(toptexture);
                   tex_patch = NULL;
@@ -572,10 +583,15 @@ static void R_RenderSegLoop (void)
                   dcvars.yh = yh;
                   dcvars.texturemid = rw_bottomtexturemid;
                   tex_patch = R_CacheTextureCompositePatchNum(bottomtexture);
+                  if (V_GetMode() == VID_MODEHARD)
+                    I_DoomDevUploadPatch(tex_patch);
+                  dcvars.texture_base = tex_patch->pixels;
+                  dcvars.texture_doomdev_addr = tex_patch->doomdev_addr;
                   dcvars.source = R_GetTextureColumn(tex_patch, texturecolumn);
                   dcvars.prevsource = R_GetTextureColumn(tex_patch, texturecolumn-1);
                   dcvars.nextsource = R_GetTextureColumn(tex_patch, texturecolumn+1);
                   dcvars.texheight = bottomtexheight;
+                  dcvars.flags = DRAW_COLUMN_ISBOT;
                   colfunc(&dcvars);
                   R_UnlockTextureCompositePatchNum(bottomtexture);
                   tex_patch = NULL;

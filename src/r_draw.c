@@ -34,6 +34,7 @@
  *-----------------------------------------------------------------------------*/
 
 #include "doomstat.h"
+#include "i_udoomdev.h"
 #include "w_wad.h"
 #include "r_main.h"
 #include "r_draw.h"
@@ -142,6 +143,9 @@ draw_vars_t drawvars = {
   0, // byte_pitch
   0, // short_pitch
   0, // int_pitch
+  0, // screen
+  0, // xoff
+  0, // yoff
   RDRAW_FILTER_POINT, // filterwall
   RDRAW_FILTER_POINT, // filterfloor
   RDRAW_FILTER_POINT, // filtersprite
@@ -664,6 +668,53 @@ static R_DrawColumn_f drawcolumnfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRA
        R_DrawFuzzColumn32_RoundedUV_LinearZ,},
     },
   },
+  {
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+      {I_DoomDevDrawColumn,
+       I_DoomDevDrawTransparentColumn,
+       I_DoomDevDrawTranslatedColumn,
+       I_DoomDevDrawFuzzColumn,},
+    },
+  },
 };
 
 R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
@@ -972,6 +1023,32 @@ static R_DrawSpan_f drawspanfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRAW_FI
       NULL,
     },
   },
+  {
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+    {
+      NULL,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+    },
+    {
+      NULL,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+      I_DoomDevDrawSpan,
+    },
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+  },
 };
 
 R_DrawSpan_f R_GetDrawSpanFunc(enum draw_filter_type_e filter,
@@ -1029,6 +1106,9 @@ void R_InitBuffer(int width, int height)
   drawvars.byte_pitch = screens[0].byte_pitch;
   drawvars.short_pitch = screens[0].short_pitch;
   drawvars.int_pitch = screens[0].int_pitch;
+  drawvars.screen = 0;
+  drawvars.xoff = viewwindowx;
+  drawvars.yoff = viewwindowy;
 
   if (V_GetMode() == VID_MODE8) {
     for (i=0; i<FUZZTABLE; i++)
@@ -1154,10 +1234,15 @@ void R_DrawViewBorder(void)
      ((SCREENHEIGHT != viewheight) ||
      ((automapmode & am_active) && ! (automapmode & am_overlay))))
   {
-    for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
-    {
-      R_VideoErase (0, i, wide_offsetx);
-      R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
+    if (V_GetMode() == VID_MODEHARD) {
+      I_DoomDevCopyRect(1, 0, 0, SCREENHEIGHT - ST_SCALED_HEIGHT, wide_offsetx, ST_SCALED_HEIGHT, 0);
+      I_DoomDevCopyRect(1, 0, SCREENWIDTH - wide_offsetx, SCREENHEIGHT - ST_SCALED_HEIGHT, wide_offsetx, ST_SCALED_HEIGHT, 0);
+    } else {
+      for (i = (SCREENHEIGHT - ST_SCALED_HEIGHT); i < SCREENHEIGHT; i++)
+      {
+        R_VideoErase (0, i, wide_offsetx);
+        R_VideoErase (SCREENWIDTH - wide_offsetx, i, wide_offsetx);
+      }
     }
   }
 
@@ -1167,17 +1252,24 @@ void R_DrawViewBorder(void)
   top = ((SCREENHEIGHT-ST_SCALED_HEIGHT)-viewheight)/2;
   side = (SCREENWIDTH-scaledviewwidth)/2;
 
-  // copy top
-  for (i = 0; i < top; i++)
-    R_VideoErase (0, i, SCREENWIDTH);
+  if (V_GetMode() == VID_MODEHARD) {
+    I_DoomDevCopyRect(1, 0, 0, 0, SCREENWIDTH, top, 0);
+    I_DoomDevCopyRect(1, 0, 0, top, side, viewheight, 0);
+    I_DoomDevCopyRect(1, 0, viewwidth+side, top, side, viewheight, 0);
+    I_DoomDevCopyRect(1, 0, 0, top+viewheight, SCREENWIDTH, SCREENHEIGHT - ST_SCALED_HEIGHT - top - viewheight, 0);
+  } else {
+    // copy top
+    for (i = 0; i < top; i++)
+      R_VideoErase (0, i, SCREENWIDTH);
 
-  // copy sides
-  for (i = top; i < (top+viewheight); i++) {
-    R_VideoErase (0, i, side);
-    R_VideoErase (viewwidth+side, i, side);
+    // copy sides
+    for (i = top; i < (top+viewheight); i++) {
+      R_VideoErase (0, i, side);
+      R_VideoErase (viewwidth+side, i, side);
+    }
+
+    // copy bottom
+    for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
+      R_VideoErase (0, i, SCREENWIDTH);
   }
-
-  // copy bottom
-  for (i = top+viewheight; i < (SCREENHEIGHT - ST_SCALED_HEIGHT); i++)
-    R_VideoErase (0, i, SCREENWIDTH);
 }

@@ -383,9 +383,12 @@ static void R_InitColormaps(void)
   lastcolormaplump  = W_GetNumForName("C_END");
   numcolormaps = lastcolormaplump - firstcolormaplump;
   colormaps = Z_Malloc(sizeof(*colormaps) * numcolormaps, PU_STATIC, 0);
+  colormap_doomdev_addr = Z_Malloc(sizeof(*colormap_doomdev_addr) * numcolormaps, PU_STATIC, 0);
   colormaps[0] = (const lighttable_t *)W_CacheLumpName("COLORMAP");
   for (i=1; i<numcolormaps; i++)
     colormaps[i] = (const lighttable_t *)W_CacheLumpNum(i+firstcolormaplump);
+  for (i = 0; i < numcolormaps; i++)
+    colormap_doomdev_addr[i] = -1;
   // cph - always lock
 }
 

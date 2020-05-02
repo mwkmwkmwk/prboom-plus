@@ -125,6 +125,7 @@ typedef struct
   int position;
   wad_source_t source;
   int flags; //e6y
+  unsigned flat_doomdev_addr;
 } lumpinfo_t;
 
 // e6y: lump flags
