@@ -602,7 +602,7 @@
 #define UHARDDOOM_PTE_PA_SHIFT				8
 #define UHARDDOOM_PTE_MASK				0xfffffff3
 /* Splits the VA into PDI + PTI + OFF */
-#define UHARDDOOM_VA_PDI(va)				((va) >> 20 & 0x3ff)
+#define UHARDDOOM_VA_PDI(va)				((va) >> 22 & 0x3ff)
 #define UHARDDOOM_VA_PTI(va)				((va) >> 12 & 0x3ff)
 #define UHARDDOOM_VA_OFF(va)				((va) & 0xfff)
 /* The parts of VA that are used for tagging PDE and PTE caches.  */
@@ -699,7 +699,7 @@
 
 /* Draw columns.  */
 /* Word 0: command type, enables, number of columns.  */
-#define UHARDDOOM_USER_DRAW_COLUMNS_HEADER(cae, cbe, te, nc)	(UHARDDOOM_USER_CMD_TYPE_DRAW_COLUMNS | (cae) << 8 | (cbe) << 9 | (te) << 12, (nc) << 16)
+#define UHARDDOOM_USER_DRAW_COLUMNS_HEADER(cae, cbe, te, nc)	(UHARDDOOM_USER_CMD_TYPE_DRAW_COLUMNS | (cae) << 8 | (cbe) << 9 | (te) << 12 | (nc) << 16)
 #define UHARDDOOM_USER_DRAW_COLUMNS_HEADER_EXTR_CMAP_A_EN(w)	((w) >> 8 & 1)
 #define UHARDDOOM_USER_DRAW_COLUMNS_HEADER_EXTR_CMAP_B_EN(w)	((w) >> 9 & 1)
 #define UHARDDOOM_USER_DRAW_COLUMNS_HEADER_EXTR_TRANS_EN(w)	((w) >> 12 & 1)
