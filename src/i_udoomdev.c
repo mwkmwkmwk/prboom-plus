@@ -319,7 +319,6 @@ static inline int I_DoomDevDrawGenericColumnBatch(pdraw_column_vars_s dcvars, in
 }
 
 void I_DoomDevDrawGenericColumn(pdraw_column_vars_s dcvars, int translation, int transparent) {
-  int ulog = 0;
   if (dcvars->yl > dcvars->yh)
     return;
   if (!I_DoomDevDrawGenericColumnBatch(dcvars, translation, transparent)) {
@@ -333,12 +332,7 @@ void I_DoomDevDrawGenericColumn(pdraw_column_vars_s dcvars, int translation, int
     if (transparent)
       I_DoomDevSend(udoomdev_transmap_addr);
   }
-  if (dcvars->texheight)
-    while ((1 << ulog) < dcvars->texheight)
-      ulog++;
-  else
-    ulog = 0x10;
-  I_DoomDevSend(UHARDDOOM_USER_DRAW_COLUMNS_WR0(dcvars->x + drawvars.xoff, ulog));
+  I_DoomDevSend(UHARDDOOM_USER_DRAW_COLUMNS_WR0(dcvars->x + drawvars.xoff, dcvars->texheight));
   I_DoomDevSend(UHARDDOOM_USER_DRAW_COLUMNS_WR1(dcvars->yl + drawvars.yoff, dcvars->yh + drawvars.yoff));
   I_DoomDevSend(dcvars->texture_doomdev_addr + (dcvars->source - dcvars->texture_base));
   I_DoomDevSend(I_DoomDevComputeColumnStart(dcvars));

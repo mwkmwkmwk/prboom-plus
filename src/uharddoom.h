@@ -546,20 +546,21 @@
 #define UHARDDOOM_COL_COLS_SRC_PITCH(i)			(0x2300 + (i) * 4)
 #define UHARDDOOM_COL_COLS_USTART(i)			(0x2400 + (i) * 4)
 #define UHARDDOOM_COL_COLS_USTEP(i)			(0x2500 + (i) * 4)
-#define UHARDDOOM_COL_COLS_STATE(i)			(0x2600 + (i) * 4)
-#define UHARDDOOM_COL_COLS_STATE_DATA_CMAP_MASK		0x0000007f
-#define UHARDDOOM_COL_COLS_STATE_DATA_CMAP_SHIFT	0
-#define UHARDDOOM_COL_COLS_STATE_ULOG_MASK		0x00001f00
-#define UHARDDOOM_COL_COLS_STATE_COL_EN			0x00002000
-#define UHARDDOOM_COL_COLS_STATE_CMAP_B_EN		0x00004000
+#define UHARDDOOM_COL_COLS_SRC_HEIGHT(i)		(0x2600 + (i) * 4)
+#define UHARDDOOM_COL_COLS_SRC_HEIGHT_MASK		0x0000ffff
+#define UHARDDOOM_COL_COLS_STATE(i)			(0x2700 + (i) * 4)
+#define UHARDDOOM_COL_COLS_STATE_COL_EN			0x00000001
+#define UHARDDOOM_COL_COLS_STATE_CMAP_B_EN		0x00000002
+#define UHARDDOOM_COL_COLS_STATE_DATA_CMAP_MASK		0x00003f00
+#define UHARDDOOM_COL_COLS_STATE_DATA_CMAP_SHIFT	8
 #define UHARDDOOM_COL_COLS_STATE_DATA_GET_MASK		0x003f0000
 #define UHARDDOOM_COL_COLS_STATE_DATA_GET_SHIFT		16
 #define UHARDDOOM_COL_COLS_STATE_DATA_PUT_MASK		0x3f000000
 #define UHARDDOOM_COL_COLS_STATE_DATA_PUT_SHIFT		24
 
-#define UHARDDOOM_COL_COLS_STATE_MASK			0x3f3f7f3f
+#define UHARDDOOM_COL_COLS_STATE_MASK			0x3f3f3f03
 /* The CMAP_A data (256 bytes).  */
-#define UHARDDOOM_COL_CMAP_A(i)				(0x2700 + (i))
+#define UHARDDOOM_COL_CMAP_A(i)				(0x2800 + (i))
 /* The pre-textured data.  64 bytes for each lane.  */
 #define UHARDDOOM_COL_DATA(i)				(0x3000 + (i))
 #define UHARDDOOM_COL_DATA_SIZE				64
@@ -709,10 +710,10 @@
 /* Word 3 (if enabled in header): colormap A address.  */
 /* Word 4 (if enabled in header): transmap address.  */
 /* The following 5 or 6 words are repeated once for every column.  */
-/* Repeat word 0: x, U mask.  */
+/* Repeat word 0: x, texture height.  */
 #define UHARDDOOM_USER_DRAW_COLUMNS_WR0(x, ulog)	((x) | (ulog) << 16)
 #define UHARDDOOM_USER_DRAW_COLUMNS_WR0_EXTR_X(w)	((w) & 0xffff)
-#define UHARDDOOM_USER_DRAW_COLUMNS_WR0_EXTR_ULOG(w)	((w) >> 16 & 0x1f)
+#define UHARDDOOM_USER_DRAW_COLUMNS_WR0_EXTR_SRC_HEIGHT(w)	((w) >> 16 & 0xffff)
 /* Repeat word 1: y0 and y1.  */
 #define UHARDDOOM_USER_DRAW_COLUMNS_WR1(y0, y1)		((y0) | (y1) << 16)
 #define UHARDDOOM_USER_DRAW_COLUMNS_WR1_EXTR_Y0(w)	((w) & 0xffff)
@@ -886,16 +887,16 @@
 #define UHARDDOOM_COLCMD_TYPE_DRAW			0x8
 /* Waits for a signal from SWR on the COLSEM interface, then flushes cache.  */
 #define UHARDDOOM_COLCMD_TYPE_COLSEM			0x9
-#define UHARDDOOM_COLCMD_DATA_COL_SETUP(x, ulog, col_en, cmap_b_en)	((x) | (ulog) << 8 | (col_en) << 13 | (cmap_b_en) << 14)
+#define UHARDDOOM_COLCMD_DATA_COL_SETUP(x, col_en, cmap_b_en, height)	((x) | (col_en) << 8 | (cmap_b_en) << 9 | (height) << 16)
 /* The column X coord in the block.  */
 #define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_X(cmd)	((cmd) & 0x3f)
-/* U coord mask.  */
-#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_ULOG(cmd)	((cmd) >> 8 & 0x1f)
 /* Column enable — if unset, this column will be disabled and skipped in
  * blocks sent to SWR.  */
-#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_COL_EN(cmd)	((cmd) >> 13 & 1)
+#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_COL_EN(cmd)	((cmd) >> 8 & 1)
 /* Colormap B enable.  */
-#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_CMAP_B_EN(cmd)	((cmd) >> 14 & 1)
+#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_CMAP_B_EN(cmd)	((cmd) >> 9 & 1)
+/* U coord mask.  */
+#define UHARDDOOM_COLCMD_DATA_EXTR_COL_SETUP_SRC_HEIGHT(cmd)	((cmd) >> 16 & 0xffff)
 /* If enabled, U is mapped to y coord within the source (ie. multiplied by
  * source pitch), otherwise x.  */
 #define UHARDDOOM_COLCMD_DATA_DRAW(len, cmap_a_en)	((len) | (cmap_a_en) << 16)
