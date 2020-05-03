@@ -406,7 +406,7 @@ void I_DoomDevDrawTranslatedColumn(pdraw_column_vars_s dcvars)
   for (i = 0; i < CR_LIMIT; i++)
     if (dcvars->translation == colrngs[i])
       xlat = i;
-  I_DoomDevDrawGenericColumn(dcvars, xlat, 1);
+  I_DoomDevDrawGenericColumn(dcvars, xlat, 0);
 }
 
 static inline int I_DoomDevDrawSpanBatch(draw_span_vars_t *dsvars) {
