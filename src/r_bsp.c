@@ -164,6 +164,7 @@ static void R_RecalcLineFlags(line_t *linedef)
   /* cph - I'm too lazy to try and work with offsets in this */
   if (curline->sidedef->rowoffset) return;
 
+#if 0
   /* Now decide on texture tiling */
   if (linedef->flags & ML_TWOSIDED) {
     int c;
@@ -184,6 +185,7 @@ static void R_RecalcLineFlags(line_t *linedef)
    (textureheight[texturetranslation[curline->sidedef->midtexture]] > c))
       linedef->r_flags |= RF_MID_TILE;
   }
+#endif
 }
 
 //
