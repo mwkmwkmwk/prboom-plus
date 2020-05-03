@@ -74,9 +74,9 @@ void I_DoomDevRead(int idx)
   }
 }
 
-void *I_DoomDevCreateBuf(uint32_t size, uint32_t *dev_addr) {
+void *I_DoomDevCreateBuf(uint32_t size, uint32_t *dev_addr, int rdonly) {
   struct udoomdev_ioctl_create_buffer cb = {size};
-  struct udoomdev_ioctl_map_buffer mb = {0, 1};
+  struct udoomdev_ioctl_map_buffer mb = {0, rdonly};
   long addr;
   void *mdata;
   int fd = ioctl(udoom_fd, UDOOMDEV_IOCTL_CREATE_BUFFER, &cb);
@@ -96,7 +96,7 @@ void *I_DoomDevCreateBuf(uint32_t size, uint32_t *dev_addr) {
 
 uint32_t I_DoomDevUploadBuf(const void *data, uint32_t size) {
   uint32_t res;
-  void *ptr = I_DoomDevCreateBuf(size, &res);
+  void *ptr = I_DoomDevCreateBuf(size, &res, 1);
   memcpy(ptr, data, size);
   munmap(ptr, size);
   return res;
@@ -121,9 +121,9 @@ void I_DoomDevAllocScreens(void)
     I_Error("doomdev2 open fail");
 
   for (i = 0; i < UDOOMDEV_NUM_CMD_BUFS; i++)
-    udoomdev_cmd_ptr[i] = I_DoomDevCreateBuf(UDOOMDEV_CMD_BUF_SIZE * 4, &udoomdev_cmd_addr[i]);
+    udoomdev_cmd_ptr[i] = I_DoomDevCreateBuf(UDOOMDEV_CMD_BUF_SIZE * 4, &udoomdev_cmd_addr[i], 1);
   for (i = 0; i < NUM_SCREENS; i++)
-    screens[i].doomdev_ptr = I_DoomDevCreateBuf(udoomdev_surf_width * udoomdev_surf_height, &screens[i].doomdev_addr);
+    screens[i].doomdev_ptr = I_DoomDevCreateBuf(udoomdev_surf_width * udoomdev_surf_height, &screens[i].doomdev_addr, 0);
   udoomdev_translations_addr = I_DoomDevUploadBuf(trans, (CR_LIMIT + 3) * 0x100);
   udoomdev_transmap_addr = I_DoomDevUploadBuf(main_tranmap, 0x10000);
   free(trans);
