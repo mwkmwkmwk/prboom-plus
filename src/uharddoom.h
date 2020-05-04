@@ -80,7 +80,7 @@
 #define UHARDDOOM_RESET_FIFO_SPANOUT			0x10000000
 #define UHARDDOOM_RESET_FIFO_COLOUT			0x20000000
 #define UHARDDOOM_RESET_FIFO_FXOUT			0x40000000
-#define UHARDDOOM_RESET_ALL				0x7ffffffe
+#define UHARDDOOM_RESET_ALL				0x7f7ffffe
 /* Interrupt status.  */
 #define UHARDDOOM_INTR					0x0008
 #define UHARDDOOM_INTR_BATCH_WAIT			0x00000001
@@ -120,8 +120,8 @@
  *         JOB.wait()
  *         # Increment BATCH_GET, possibly wrapping
  *         BATCH_GET += 0x10
- *         if BATCH_GET == BATCH_WRAP:
- *             BATCH_GET = 0
+ *         if BATCH_GET == BATCH_WRAP_FROM:
+ *             BATCH_GET = BATCH_WRAP_TO
  *         # If we reached the interrupt value, trigger interrupt.
  *         if BATCH_GET == BATCH_WAIT:
  *             INTR |= INTR_BATCH_WAIT
@@ -130,18 +130,19 @@
 /* The kernel PD, used for fetching batch jobs.  Goes straight to
  * TLB_KERNEL_PD.  */
 #define UHARDDOOM_BATCH_PDP				0x0020
-/* If BATCH_GET would be equal to this value after incrementing, set it to 0
- * instead.  */
-#define UHARDDOOM_BATCH_WRAP				0x0024
 /* The current kernel vaddr that BATCH is reading batches from.  Must be
  * 0x10-byte aligned.  */
-#define UHARDDOOM_BATCH_GET				0x0028
+#define UHARDDOOM_BATCH_GET				0x0024
 /* Current end pointer — when BATCH_GET is equal to BATCH_PUT, BATCH will
  * halt until more data is available.  */
-#define UHARDDOOM_BATCH_PUT				0x002c
+#define UHARDDOOM_BATCH_PUT				0x0028
 /* Interrupt pointer — when BATCH_GET is incremented and reaches this value,
  * the BATCH_WAIT interrupt will be triggered.  */
-#define UHARDDOOM_BATCH_WAIT				0x0030
+#define UHARDDOOM_BATCH_WAIT				0x002c
+/* If BATCH_GET would be equal to this value after incrementing, set it to WRAP_TO
+ * instead.  */
+#define UHARDDOOM_BATCH_WRAP_FROM			0x0030
+#define UHARDDOOM_BATCH_WRAP_TO				0x0034
 #define UHARDDOOM_BATCH_PTR_MASK			0xfffffff0
 #define UHARDDOOM_BATCH_JOB_SIZE			0x10
 
@@ -272,11 +273,11 @@
 /* Unaligned dst pitch.  Data A is cmd pointer, data B is dst pitch.  */
 #define UHARDDOOM_FE_ERROR_CODE_DST_PITCH_UNALIGNED	0x00000002
 /* Unaligned colormap pointer.  Data A is cmd pointer, data B is colormap pointer.  */
-#define UHARDDOOM_FE_ERROR_COLORMAP_UNALIGNED		0x00000003
+#define UHARDDOOM_FE_ERROR_CODE_COLORMAP_UNALIGNED	0x00000003
 /* Y coordinates for DRAW_COLUMNS in wrong order.  Data A is cmd pointer, data B is command word.  */
-#define UHARDDOOM_FE_ERROR_DRAW_COLUMNS_Y_REV		0x00000004
+#define UHARDDOOM_FE_ERROR_CODE_DRAW_COLUMNS_Y_REV	0x00000004
 /* X coordinates for DRAW_SPANS in wrong order.  Data A is cmd pointer, data B is command word.  */
-#define UHARDDOOM_FE_ERROR_DRAW_SPANS_X_REV		0x00000005
+#define UHARDDOOM_FE_ERROR_CODE_DRAW_SPANS_X_REV	0x00000005
 /* The FE core encountered an illegal instruction.  A is address, B is
  * the instruction opcode.  */
 #define UHARDDOOM_FE_ERROR_CODE_ILLEGAL_INSTRUCTION	0x00000080
@@ -656,7 +657,7 @@
 /* Word 0: command type and source UV mask.  */
 #define UHARDDOOM_USER_BLIT_HEADER(ulog, vlog)		(UHARDDOOM_USER_CMD_TYPE_BLIT | (ulog) << 16 | (vlog) << 24)
 #define UHARDDOOM_USER_BLIT_HEADER_EXTR_ULOG(w)		((w) >> 16 & 0x1f)
-#define UHARDDOOM_USER_BLIT_HEADER_EXTR_VLOG(w)		((w) >> 16 & 0x1f)
+#define UHARDDOOM_USER_BLIT_HEADER_EXTR_VLOG(w)		((w) >> 24 & 0x1f)
 /* Word 1: destination pointer.  */
 /* Word 2: destination pitch.  */
 /* Word 3: X and Y coords of the destination left upper corner.  */
