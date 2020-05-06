@@ -391,7 +391,177 @@
 
 /* Section 2.8: STATS.  */
 
-/* XXX: destined for 0x800:0xa00 */
+#define UHARDDOOM_STATS(i)				(0x0800 + (i) * 4)
+#define UHARDDOOM_STATS_NUM				0x80
+/* Stats 0:0x20 are for the fw.  */
+/* A job has been processed.  */
+#define UHARDDOOM_STAT_FW_JOB				0x00
+/* A user command has been processed.  */
+#define UHARDDOOM_STAT_FW_CMD				0x01
+/* A fill rect command has been processed.  */
+#define UHARDDOOM_STAT_FW_FILL_RECT			0x02
+/* A fill rect span has been drawn.  */
+#define UHARDDOOM_STAT_FW_FILL_RECT_SPAN		0x03
+/* A horizontal draw line command has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_LINE_HORIZ		0x04
+/* A horizontal draw line segment has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_LINE_HORIZ_SEG		0x05
+/* A vertical draw line command has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_LINE_VERT		0x06
+/* A vertical draw line segment has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_LINE_VERT_SEG		0x07
+/* A simple blit command has been processed.  */
+#define UHARDDOOM_STAT_FW_BLIT_SIMPLE			0x08
+/* A simple blit span has been drawn.  */
+#define UHARDDOOM_STAT_FW_BLIT_SIMPLE_SPAN		0x09
+/* A background blit command has been processed.  */
+#define UHARDDOOM_STAT_FW_BLIT_BG			0x0a
+/* A background blit span has been drawn.  */
+#define UHARDDOOM_STAT_FW_BLIT_BG_SPAN			0x0b
+/* A complex blit command has been processed.  */
+#define UHARDDOOM_STAT_FW_BLIT_COMPLEX			0x0c
+/* A complex blit span has been drawn.  */
+#define UHARDDOOM_STAT_FW_BLIT_COMPLEX_SPAN		0x0d
+/* A draw spans command has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_SPANS			0x0e
+/* A draw spans span has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_SPANS_SPAN		0x0f
+/* A wipe command has been processed.  */
+#define UHARDDOOM_STAT_FW_WIPE				0x10
+/* A wipe column has been drawn.  */
+#define UHARDDOOM_STAT_FW_WIPE_COL			0x11
+/* A wipe batch has been drawn.  */
+#define UHARDDOOM_STAT_FW_WIPE_BATCH			0x12
+/* A wipe segment has been drawn.  */
+#define UHARDDOOM_STAT_FW_WIPE_SEG			0x13
+/* A draw columns command has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_COLUMNS			0x14
+/* A draw columns column has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_COLUMNS_COL		0x15
+/* A draw columns batch has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_COLUMNS_BATCH		0x16
+/* A draw columns segment has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_COLUMNS_SEG		0x17
+/* A draw fuzz command has been processed.  */
+#define UHARDDOOM_STAT_FW_DRAW_FUZZ			0x18
+/* A draw fuzz column has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_FUZZ_COL			0x19
+/* A draw fuzz batch has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_FUZZ_BATCH		0x1a
+/* A draw fuzz segment has been drawn.  */
+#define UHARDDOOM_STAT_FW_DRAW_FUZZ_SEG			0x1b
+/* 0x1c-0x1f unused and reserved for fw.  */
+/* A TLB direct hit (per-client).  */
+#define UHARDDOOM_STAT_TLB_HIT(i)			(0x20 + (i))
+/* A TLB pool hit (per-client).  */
+#define UHARDDOOM_STAT_TLB_POOL_HIT(i)			(0x28 + (i))
+/* A TLB miss — PTE fetch (per-client).  */
+#define UHARDDOOM_STAT_TLB_MISS(i)			(0x30 + (i))
+/* A kernel PDE TLB hit.  */
+#define UHARDDOOM_STAT_TLB_KERNEL_PDE_HIT		0x38
+/* A kernel PDE TLB miss — PDE fetch.  */
+#define UHARDDOOM_STAT_TLB_KERNEL_PDE_MISS		0x39
+/* A user PDE TLB hit.  */
+#define UHARDDOOM_STAT_TLB_USER_PDE_HIT			0x3a
+/* A user PDE TLB miss — PDE fetch.  */
+#define UHARDDOOM_STAT_TLB_USER_PDE_MISS		0x3b
+/* A kernel TLB flush.  */
+#define UHARDDOOM_STAT_TLB_KERNEL_FLUSH			0x3c
+/* A user TLB flush.  */
+#define UHARDDOOM_STAT_TLB_USER_FLUSH			0x3d
+/* 0x3e-0x3f unused.  */
+/* A cache hit (per-client).  */
+#define UHARDDOOM_STAT_CACHE_HIT(i)			(0x40 + (i))
+/* A cache miss (per-client).  */
+#define UHARDDOOM_STAT_CACHE_MISS(i)			(0x44 + (i))
+/* A cache speculative hit (per-client).  */
+#define UHARDDOOM_STAT_CACHE_SPEC_HIT(i)		(0x48 + (i))
+/* A cache speculative miss (per-client).  */
+#define UHARDDOOM_STAT_CACHE_SPEC_MISS(i)		(0x4c + (i))
+/* A cache flush (per-client).  */
+#define UHARDDOOM_STAT_CACHE_FLUSH(i)			(0x50 + (i))
+/* BATCH_WAIT interrupt triggered.  */
+#define UHARDDOOM_STAT_BATCH_WAIT			0x54
+/* 0x55 unused.  */
+/* CMD block read.  */
+#define UHARDDOOM_STAT_CMD_BLOCK			0x56
+/* CMD word read.  */
+#define UHARDDOOM_STAT_CMD_WORD				0x57
+/* FE instruction executed.  */
+#define UHARDDOOM_STAT_FE_INSN				0x58
+/* FE load executed.  */
+#define UHARDDOOM_STAT_FE_LOAD				0x59
+/* FE store executed.  */
+#define UHARDDOOM_STAT_FE_STORE				0x5a
+/* 0x5b unused.  */
+/* MMIO register read.  */
+#define UHARDDOOM_STAT_MMIO_READ			0x5c
+/* MMIO register write.  */
+#define UHARDDOOM_STAT_MMIO_WRITE			0x5d
+/* 0x5e-0x5f unused.  */
+/* SRD command executed.  */
+#define UHARDDOOM_STAT_SRD_CMD				0x60
+/* SRD read executed.  */
+#define UHARDDOOM_STAT_SRD_READ				0x61
+/* SRD block read.  */
+#define UHARDDOOM_STAT_SRD_BLOCK			0x62
+/* SRD FESEM executed.  */
+#define UHARDDOOM_STAT_SRD_FESEM			0x63
+/* SPAN command executed.  */
+#define UHARDDOOM_STAT_SPAN_CMD				0x64
+/* SPAN draw executed.  */
+#define UHARDDOOM_STAT_SPAN_DRAW			0x65
+/* SPAN block drawn.  */
+#define UHARDDOOM_STAT_SPAN_BLOCK			0x66
+/* SPAN pixel drawn.  */
+#define UHARDDOOM_STAT_SPAN_PIXEL			0x67
+/* COL command executed.  */
+#define UHARDDOOM_STAT_COL_CMD				0x68
+/* COL LOAD_CMAP_A command executed.  */
+#define UHARDDOOM_STAT_COL_LOAD_CMAP_A			0x69
+/* COL draw executed.  */
+#define UHARDDOOM_STAT_COL_DRAW				0x6a
+/* COL draw executed with CMAP_A enabled.  */
+#define UHARDDOOM_STAT_COL_DRAW_CMAP_A			0x6b
+/* COL block drawn.  */
+#define UHARDDOOM_STAT_COL_BLOCK			0x6c
+/* COL block drawn with CMAP_A enabled.  */
+#define UHARDDOOM_STAT_COL_BLOCK_CMAP_A			0x6d
+/* COL pixel drawn.  */
+#define UHARDDOOM_STAT_COL_PIXEL			0x6e
+/* COL pixel drawn with CMAP_B enabled.  */
+#define UHARDDOOM_STAT_COL_PIXEL_CMAP_B			0x6f
+/* FX command executed.  */
+#define UHARDDOOM_STAT_FX_CMD				0x70
+/* FX LOAD_CMAP command executed.  */
+#define UHARDDOOM_STAT_FX_LOAD_CMAP			0x71
+/* FX LOAD_FUZZ command executed.  */
+#define UHARDDOOM_STAT_FX_LOAD_FUZZ			0x72
+/* FX DRAW command executed.  */
+#define UHARDDOOM_STAT_FX_DRAW				0x73
+/* FX block drawn.  */
+#define UHARDDOOM_STAT_FX_BLOCK				0x74
+/* FX block drawn with CMAP enabled.  */
+#define UHARDDOOM_STAT_FX_BLOCK_CMAP			0x75
+/* FX block drawn with FUZZ enabled.  */
+#define UHARDDOOM_STAT_FX_BLOCK_FUZZ			0x76
+/* 0x77 unused.  */
+/* SWR command executed.  */
+#define UHARDDOOM_STAT_SWR_CMD				0x78
+/* SWR DRAW command executed.  */
+#define UHARDDOOM_STAT_SWR_DRAW				0x79
+/* SWR block drawn.  */
+#define UHARDDOOM_STAT_SWR_BLOCK			0x7a
+/* SWR block read.  */
+#define UHARDDOOM_STAT_SWR_BLOCK_READ			0x7b
+/* SWR block drawn with TRANS_EN.  */
+#define UHARDDOOM_STAT_SWR_BLOCK_TRANS			0x7c
+/* SWR SRDSEM executed.  */
+#define UHARDDOOM_STAT_SWR_SRDSEM			0x7d
+/* SWR COLSEM executed.  */
+#define UHARDDOOM_STAT_SWR_COLSEM			0x7e
+/* SWR SPANSEM executed.  */
+#define UHARDDOOM_STAT_SWR_SPANSEM			0x7f
 
 /* Section 2.9: SRD — surface read unit.  Reads raw surface or colorbuf
  * blocks, sends them to COL or FX.  */
@@ -811,7 +981,7 @@
 /* Read to wait for a signal from SWR on the FESEM interface.  */
 #define UHARDDOOM_FEMEM_FESEM				0x00000240
 /* Write to bump a STATS counter.  */
-#define UHARDDOOM_FEMEM_STATS_BUMP(t)			(0x00000300 + (t) * 4)
+#define UHARDDOOM_FEMEM_STAT_BUMP(t)			(0x00000300 + (t) * 4)
 /* The code RAM — read only from the core.  */
 #define UHARDDOOM_FEMEM_CODE_BASE			0x80000000
 #define UHARDDOOM_FEMEM_CODE_SIZE			0x10000
