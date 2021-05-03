@@ -81,7 +81,6 @@ void I_DoomDevResizeBuf(int fd, uint32_t size) {
 }
 
 void I_DoomDevUploadBuf(const void *data, uint32_t size, struct poolbuf **phead, int *res_fd, uint32_t *res_offset) {
-	void *mdata;
 	struct poolbuf *buf;
 	if (*phead && (*phead)->used + size <= POOL_MAX) {
 		buf = *phead;
@@ -105,7 +104,7 @@ void I_DoomDevUploadBuf(const void *data, uint32_t size, struct poolbuf **phead,
 		while (buf->size < size)
 			buf->size *= 2;
 		*phead = buf;
-		mdata = I_DoomDevCreateBuf(buf->size, 0x40, &buf->fd);
+		buf->ptr = I_DoomDevCreateBuf(buf->size, 0x40, &buf->fd);
 	}
 	*res_fd = buf->fd;
 	memcpy((char *)buf->ptr + *res_offset, data, size);
