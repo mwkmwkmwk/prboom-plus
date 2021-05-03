@@ -581,7 +581,7 @@ void I_DoomDevDrawSpan(draw_span_vars_t *dsvars)
     I_DoomDevSend(FHARDDOOM_USER_DRAW_SPANS_W2(y, y));
   }
   I_DoomDevSend(FHARDDOOM_USER_DRAW_SPANS_WR0(dsvars->x1 + drawvars.xoff, dsvars->x2 + drawvars.xoff));
-  I_DoomDevSend(dsvars->xfrac);
+  I_DoomDevSend(dsvars->xfrac & 0x3fffff);
   I_DoomDevSend((dsvars->yfrac & 0x3fffff) | dsvars->flat_doomdev_idx << 22);
   I_DoomDevSend(dsvars->xstep);
   I_DoomDevSend(dsvars->ystep);
