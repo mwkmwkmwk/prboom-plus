@@ -47,6 +47,7 @@
 #include "m_bbox.h"
 #include "w_wad.h"   /* needed for color translation lump lookup */
 #include "v_video.h"
+#include "i_fdoomdev.h"
 #include "i_video.h"
 #include "r_filter.h"
 #include "lprintf.h"
@@ -381,6 +382,8 @@ void V_Init (void)
     screens[i].byte_pitch = 0;
     screens[i].short_pitch = 0;
     screens[i].int_pitch = 0;
+    screens[i].doomdev_fd = -1;
+    screens[i].doomdev_ptr = 0;
   }
 }
 
@@ -402,6 +405,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   const byte *trans;
 
   stretch_param_t *params;
+
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevUploadPatch(patch);
 
   if (cm<CR_LIMIT)
     trans=colrngs[cm];
@@ -529,6 +535,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
     drawvars.byte_pitch = screens[scrn].byte_pitch;
     drawvars.short_pitch = screens[scrn].short_pitch;
     drawvars.int_pitch = screens[scrn].int_pitch;
+    drawvars.screen = scrn;
+    drawvars.xoff = 0;
+    drawvars.yoff = 0;
 
     if (flags & VPT_TRANS) {
       colfunc = R_GetDrawColumnFunc(RDC_PIPELINE_TRANSLATED, drawvars.filterpatch, RDRAW_FILTER_NONE);
@@ -664,6 +673,9 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
           dcvars.edgeslope &= ~RDRAW_EDGESLOPE_TOP_MASK;
         }
 
+        dcvars.texture_doomdev_fd = patch->doomdev_fd;
+        dcvars.texture_doomdev_addr = patch->doomdev_addr;
+        dcvars.texture_base = patch->pixels;
         dcvars.source = column->pixels + post->topdelta + yoffset;
         dcvars.prevsource = prevcolumn ? prevcolumn->pixels + post->topdelta + yoffset: dcvars.source;
         dcvars.nextsource = nextcolumn ? nextcolumn->pixels + post->topdelta + yoffset: dcvars.source;
@@ -1099,6 +1111,21 @@ void V_InitMode(video_mode_t mode) {
       V_DrawLineWu = WRAP_V_DrawLineWu;
       current_videomode = VID_MODE32;
       break;
+    case VID_MODEHARD:
+      lprintf(LO_INFO, "V_InitMode: using doomdev video mode\n");
+      V_CopyRect = I_DoomDevCopyRect;
+      V_FillRect = I_DoomDevFillRect;
+      V_DrawNumPatch = FUNC_V_DrawNumPatch;
+      V_DrawNumPatchPrecise = FUNC_V_DrawNumPatchPrecise;
+      V_FillFlat = I_DoomDevFillFlat;
+      V_FillPatch = FUNC_V_FillPatch;
+      V_DrawBackground = FUNC_V_DrawBackground;
+      V_PlotPixel = I_DoomDevPlotPixel;
+      V_PlotPixelWu = I_DoomDevPlotPixelWu;
+      V_DrawLine = I_DoomDevDrawLine;
+      V_DrawLineWu = I_DoomDevDrawLine;
+      current_videomode = VID_MODEHARD;
+      break;
 #ifdef GL_DOOM
     case VID_MODEGL:
       lprintf(LO_INFO, "V_InitMode: using OpenGL video mode\n");
@@ -1132,6 +1159,7 @@ video_mode_t V_GetMode(void) {
 //
 int V_GetModePixelDepth(video_mode_t mode) {
   switch (mode) {
+    case VID_MODEHARD: return 1;
     case VID_MODE8: return 1;
     case VID_MODE15: return 2;
     case VID_MODE16: return 2;
@@ -1145,6 +1173,7 @@ int V_GetModePixelDepth(video_mode_t mode) {
 //
 int V_GetNumPixelBits(void) {
   switch (current_videomode) {
+    case VID_MODEHARD: return 8;
     case VID_MODE8: return 8;
     case VID_MODE15: return 15;
     case VID_MODE16: return 16;

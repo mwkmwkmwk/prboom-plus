@@ -258,6 +258,9 @@ void HUlib_eraseTextLine(hu_textline_t* l)
       bottom = params->video->y2lookup[bottom] + params->deltay1;
     }
 
+    if (V_GetMode() == VID_MODEHARD) {
+      R_DrawViewBorder();
+    } else {
     for (y=top; y<=bottom; y++)
     {
       if (y < viewwindowy || y >= viewwindowy + viewheight)
@@ -269,6 +272,7 @@ void HUlib_eraseTextLine(hu_textline_t* l)
         // erase right border
         R_VideoErase(viewwindowx + viewwidth, y, viewwindowx);
       }
+    }
     }
   }
 
@@ -610,6 +614,10 @@ static void HUlib_eraseMBg(hu_mtext_t* m)
 
   if (!(automapmode & am_active) && viewwindowx)
   {
+    if (V_GetMode() == VID_MODEHARD) {
+      R_DrawViewBorder();
+      return;
+    }
     lh = m->l[0].f[0].height + 1;
     for (y=m->y; y<m->y+lh*(hud_msg_lines+2) ; y++)
     {

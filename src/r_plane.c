@@ -471,6 +471,11 @@ static void R_DoDrawPlane(visplane_t *pl)
       dcvars.iscale = skyiscale;
 
       tex_patch = R_CacheTextureCompositePatchNum(texture);
+      if (V_GetMode() == VID_MODEHARD)
+        I_DoomDevUploadPatch(tex_patch);
+      dcvars.texture_base = tex_patch->pixels;
+      dcvars.texture_doomdev_fd = tex_patch->doomdev_fd;
+      dcvars.texture_doomdev_addr = tex_patch->doomdev_addr;
 
   // killough 10/98: Use sky scrolling offset, and possibly flip picture
         for (x = pl->minx; (dcvars.x = x) <= pl->maxx; x++)
@@ -490,6 +495,11 @@ static void R_DoDrawPlane(visplane_t *pl)
       draw_span_vars_t dsvars;
 
       dsvars.source = W_CacheLumpNum(firstflat + flattranslation[pl->picnum]);
+      if (V_GetMode() == VID_MODEHARD) {
+	I_DoomDevUploadFlat(firstflat + flattranslation[pl->picnum], dsvars.source);
+	dsvars.flat_doomdev_fd = lumpinfo[firstflat + flattranslation[pl->picnum]].flat_doomdev_fd;
+	dsvars.flat_doomdev_idx = lumpinfo[firstflat + flattranslation[pl->picnum]].flat_doomdev_idx;
+      }
 
       xoffs = pl->xoffs;  // killough 2/28/98: Add offsets
       yoffs = pl->yoffs;

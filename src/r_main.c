@@ -51,6 +51,7 @@
 #include "v_video.h"
 #include "lprintf.h"
 #include "st_stuff.h"
+#include "i_fdoomdev.h"
 #include "i_main.h"
 #include "i_system.h"
 #include "g_game.h"
@@ -148,6 +149,8 @@ const lighttable_t *(*scalelight)[MAXLIGHTSCALE];
 const lighttable_t *(*zlight)[MAXLIGHTZ];
 const lighttable_t *fullcolormap;
 const lighttable_t **colormaps;
+int *colormap_doomdev_fd;
+int *colormap_doomdev_idx;
 /* cph - allow crappy fake contrast to be disabled */
 int fake_contrast;
 
@@ -994,6 +997,8 @@ static void R_SetupFrame (player_t *player)
 
   //e6y: save previous and current colormap
   boom_cm = cm;
+  if (V_GetMode() == VID_MODEHARD)
+    I_DoomDevUploadColormap(cm);
 
   fullcolormap = colormaps[cm];
   zlight = c_zlight[cm];

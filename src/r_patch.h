@@ -83,6 +83,8 @@ typedef struct {
 #endif
   unsigned int locks;
   unsigned int flags;//e6y
+  int doomdev_fd;
+  unsigned doomdev_addr;
 } rpatch_t;
 
 
@@ -113,5 +115,6 @@ const rcolumn_t *R_GetPatchColumn(const rpatch_t *patch, int columnIndex);
 
 void R_InitPatches();
 void R_FlushAllPatches();
+void R_FlushHardPatches();
 
 #endif
